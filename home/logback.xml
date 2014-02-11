@@ -1,8 +1,8 @@
 <configuration scan="true">
     <appender name="FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
-        <file>./logs/hasoftware.log</file>
+        <file>./logs/${app_name:-}.log</file>
         <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
-            <fileNamePattern>./logs/can-interface-%d{yyyy-MM-dd}.log.zip</fileNamePattern>
+            <fileNamePattern>./logs/${app_name:-}-%d{yyyy-MM-dd}.log.zip</fileNamePattern>
         </rollingPolicy>
         <encoder>
             <pattern>%d{HH:mm:ss.SSS} [%thread] %-5level %logger{5} - %msg%n</pattern>
