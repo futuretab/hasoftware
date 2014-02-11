@@ -1,0 +1,226 @@
+<?xml version="1.0" encoding="utf-8"?>
+<data-map xmlns="http://cayenne.apache.org/schema/3.0/modelMap"
+	 xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	 xsi:schemaLocation="http://cayenne.apache.org/schema/3.0/modelMap http://cayenne.apache.org/schema/3.0/modelMap.xsd"
+	 project-version="6">
+	<property name="defaultPackage" value="hasoftware.server.data"/>
+	<db-entity name="AGROUP">
+		<db-attribute name="CREATEDON" type="BIGINT" isMandatory="true"/>
+		<db-attribute name="ID" type="INTEGER" isPrimaryKey="true" isGenerated="true" isMandatory="true"/>
+		<db-attribute name="NAME" type="VARCHAR" isMandatory="true" length="20"/>
+		<db-attribute name="UPDATEDON" type="BIGINT" isMandatory="true"/>
+	</db-entity>
+	<db-entity name="AUSER">
+		<db-attribute name="CREATEDON" type="BIGINT" isMandatory="true"/>
+		<db-attribute name="FIRSTNAME" type="VARCHAR" isMandatory="true" length="20"/>
+		<db-attribute name="ID" type="INTEGER" isPrimaryKey="true" isGenerated="true" isMandatory="true"/>
+		<db-attribute name="LASTNAME" type="VARCHAR" isMandatory="true" length="20"/>
+		<db-attribute name="PASSWORD" type="VARCHAR" isMandatory="true" length="20"/>
+		<db-attribute name="UPDATEDON" type="BIGINT" isMandatory="true"/>
+		<db-attribute name="USERNAME" type="VARCHAR" isMandatory="true" length="20"/>
+	</db-entity>
+	<db-entity name="DEVICE">
+		<db-attribute name="ADDRESS" type="VARCHAR" isMandatory="true" length="10"/>
+		<db-attribute name="CREATEDON" type="BIGINT" isMandatory="true"/>
+		<db-attribute name="DEVICETYPE_ID" type="INTEGER" isMandatory="true"/>
+		<db-attribute name="ID" type="INTEGER" isPrimaryKey="true" isGenerated="true" isMandatory="true"/>
+		<db-attribute name="MESSAGE1" type="VARCHAR" isMandatory="true" length="100"/>
+		<db-attribute name="MESSAGE2" type="VARCHAR" length="20"/>
+		<db-attribute name="NAME" type="VARCHAR" isMandatory="true" length="20"/>
+		<db-attribute name="NODE_ID" type="INTEGER" isMandatory="true"/>
+		<db-attribute name="UPDATEDON" type="BIGINT" isMandatory="true"/>
+	</db-entity>
+	<db-entity name="DEVICETYPE">
+		<db-attribute name="CODE" type="VARCHAR" isMandatory="true" length="10"/>
+		<db-attribute name="DESCRIPTION" type="VARCHAR" isMandatory="true" length="50"/>
+		<db-attribute name="ID" type="INTEGER" isPrimaryKey="true" isGenerated="true" isMandatory="true"/>
+	</db-entity>
+	<db-entity name="DEVICE_TO_OUTPUTDEVICE">
+		<db-attribute name="DEVICE_FK" type="INTEGER" isPrimaryKey="true" isMandatory="true"/>
+		<db-attribute name="OUTPUTDEVICE_FK" type="INTEGER" isPrimaryKey="true" isMandatory="true"/>
+	</db-entity>
+	<db-entity name="GROUPS_TO_PERMISSIONS">
+		<db-attribute name="GROUP_FK" type="INTEGER" isPrimaryKey="true" isMandatory="true"/>
+		<db-attribute name="PERMISSION_FK" type="INTEGER" isPrimaryKey="true" isMandatory="true"/>
+	</db-entity>
+	<db-entity name="INPUTEVENT">
+		<db-attribute name="CREATEDON" type="BIGINT" isMandatory="true"/>
+		<db-attribute name="DATA" type="VARCHAR" isMandatory="true" length="100"/>
+		<db-attribute name="DEVICETYPE_ID" type="INTEGER" isMandatory="true"/>
+		<db-attribute name="ID" type="INTEGER" isPrimaryKey="true" isGenerated="true" isMandatory="true"/>
+	</db-entity>
+	<db-entity name="NODE">
+		<db-attribute name="CREATEDON" type="BIGINT" isMandatory="true"/>
+		<db-attribute name="ID" type="INTEGER" isPrimaryKey="true" isGenerated="true" isMandatory="true"/>
+		<db-attribute name="NAME" type="VARCHAR" isMandatory="true" length="20"/>
+		<db-attribute name="PARENT_ID" type="INTEGER"/>
+		<db-attribute name="UPDATEDON" type="BIGINT" isMandatory="true"/>
+	</db-entity>
+	<db-entity name="OUTPUTDEVICE">
+		<db-attribute name="ADDRESS" type="VARCHAR" isMandatory="true" length="60"/>
+		<db-attribute name="CREATEDON" type="BIGINT" isMandatory="true"/>
+		<db-attribute name="DESCRIPTION" type="VARCHAR" isMandatory="true" length="20"/>
+		<db-attribute name="DEVICETYPE_ID" type="INTEGER" isMandatory="true"/>
+		<db-attribute name="ID" type="INTEGER" isPrimaryKey="true" isMandatory="true"/>
+		<db-attribute name="NAME" type="VARCHAR" isMandatory="true" length="20"/>
+		<db-attribute name="SERIALNUMBER" type="VARCHAR" isMandatory="true" length="20"/>
+		<db-attribute name="UPDATEDON" type="BIGINT" isMandatory="true"/>
+	</db-entity>
+	<db-entity name="OUTPUTEVENT">
+		<db-attribute name="CREATEDON" type="BIGINT" isMandatory="true"/>
+		<db-attribute name="DATA" type="VARCHAR" isMandatory="true" length="100"/>
+		<db-attribute name="DEVICETYPE_ID" type="INTEGER" isMandatory="true"/>
+		<db-attribute name="ID" type="INTEGER" isPrimaryKey="true" isGenerated="true" isMandatory="true"/>
+	</db-entity>
+	<db-entity name="PERMISSION">
+		<db-attribute name="CREATEDON" type="BIGINT" isMandatory="true"/>
+		<db-attribute name="ID" type="INTEGER" isPrimaryKey="true" isGenerated="true" isMandatory="true"/>
+		<db-attribute name="NAME" type="VARCHAR" isMandatory="true" length="20"/>
+		<db-attribute name="UPDATEDON" type="BIGINT" isMandatory="true"/>
+	</db-entity>
+	<db-entity name="USERS_TO_GROUPS">
+		<db-attribute name="GROUP_FK" type="INTEGER" isPrimaryKey="true" isMandatory="true"/>
+		<db-attribute name="USER_FK" type="INTEGER" isPrimaryKey="true" isMandatory="true"/>
+	</db-entity>
+	<obj-entity name="Device" className="hasoftware.server.data.Device" dbEntityName="DEVICE">
+		<obj-attribute name="address" type="java.lang.String" db-attribute-path="ADDRESS"/>
+		<obj-attribute name="createdOn" type="java.lang.Long" db-attribute-path="CREATEDON"/>
+		<obj-attribute name="message1" type="java.lang.String" db-attribute-path="MESSAGE1"/>
+		<obj-attribute name="message2" type="java.lang.String" db-attribute-path="MESSAGE2"/>
+		<obj-attribute name="name" type="java.lang.String" db-attribute-path="NAME"/>
+		<obj-attribute name="updatedOn" type="java.lang.Long" db-attribute-path="UPDATEDON"/>
+	</obj-entity>
+	<obj-entity name="DeviceType" className="hasoftware.server.data.DeviceType" dbEntityName="DEVICETYPE">
+		<obj-attribute name="code" type="java.lang.String" db-attribute-path="CODE"/>
+		<obj-attribute name="description" type="java.lang.String" db-attribute-path="DESCRIPTION"/>
+	</obj-entity>
+	<obj-entity name="Group" className="hasoftware.server.data.Group" dbEntityName="AGROUP">
+		<obj-attribute name="createdOn" type="java.lang.Long" db-attribute-path="CREATEDON"/>
+		<obj-attribute name="name" type="java.lang.String" db-attribute-path="NAME"/>
+		<obj-attribute name="updatedOn" type="java.lang.Long" db-attribute-path="UPDATEDON"/>
+	</obj-entity>
+	<obj-entity name="InputEvent" className="hasoftware.server.data.InputEvent" dbEntityName="INPUTEVENT">
+		<obj-attribute name="createdOn" type="long" db-attribute-path="CREATEDON"/>
+		<obj-attribute name="data" type="java.lang.String" db-attribute-path="DATA"/>
+	</obj-entity>
+	<obj-entity name="Node" className="hasoftware.server.data.Node" dbEntityName="NODE">
+		<obj-attribute name="createdOn" type="java.lang.Long" db-attribute-path="CREATEDON"/>
+		<obj-attribute name="name" type="java.lang.String" db-attribute-path="NAME"/>
+		<obj-attribute name="updatedOn" type="java.lang.Long" db-attribute-path="UPDATEDON"/>
+	</obj-entity>
+	<obj-entity name="OutputDevice" className="hasoftware.server.data.OutputDevice" dbEntityName="OUTPUTDEVICE">
+		<obj-attribute name="address" type="java.lang.String" db-attribute-path="ADDRESS"/>
+		<obj-attribute name="createdOn" type="java.lang.Long" db-attribute-path="CREATEDON"/>
+		<obj-attribute name="description" type="java.lang.String" db-attribute-path="DESCRIPTION"/>
+		<obj-attribute name="name" type="java.lang.String" db-attribute-path="NAME"/>
+		<obj-attribute name="serialNumber" type="java.lang.String" db-attribute-path="SERIALNUMBER"/>
+		<obj-attribute name="updatedOn" type="java.lang.Long" db-attribute-path="UPDATEDON"/>
+	</obj-entity>
+	<obj-entity name="OutputEvent" className="hasoftware.server.data.OutputEvent" dbEntityName="OUTPUTEVENT">
+		<obj-attribute name="createdOn" type="long" db-attribute-path="CREATEDON"/>
+		<obj-attribute name="data" type="java.lang.String" db-attribute-path="DATA"/>
+	</obj-entity>
+	<obj-entity name="Permission" className="hasoftware.server.data.Permission" dbEntityName="PERMISSION">
+		<obj-attribute name="createdOn" type="java.lang.Long" db-attribute-path="CREATEDON"/>
+		<obj-attribute name="name" type="java.lang.String" db-attribute-path="NAME"/>
+		<obj-attribute name="updatedOn" type="java.lang.Long" db-attribute-path="UPDATEDON"/>
+	</obj-entity>
+	<obj-entity name="User" className="hasoftware.server.data.User" dbEntityName="AUSER">
+		<obj-attribute name="createdOn" type="java.lang.Long" db-attribute-path="CREATEDON"/>
+		<obj-attribute name="firstName" type="java.lang.String" db-attribute-path="FIRSTNAME"/>
+		<obj-attribute name="lastName" type="java.lang.String" db-attribute-path="LASTNAME"/>
+		<obj-attribute name="password" type="java.lang.String" db-attribute-path="PASSWORD"/>
+		<obj-attribute name="updatedOn" type="java.lang.Long" db-attribute-path="UPDATEDON"/>
+		<obj-attribute name="username" type="java.lang.String" db-attribute-path="USERNAME"/>
+	</obj-entity>
+	<db-relationship name="PERMISSIONJOIN" source="AGROUP" target="GROUPS_TO_PERMISSIONS" toMany="true">
+		<db-attribute-pair source="ID" target="GROUP_FK"/>
+	</db-relationship>
+	<db-relationship name="USERJOIN" source="AGROUP" target="USERS_TO_GROUPS" toMany="true">
+		<db-attribute-pair source="ID" target="GROUP_FK"/>
+	</db-relationship>
+	<db-relationship name="GROUPJOIN" source="AUSER" target="USERS_TO_GROUPS" toMany="true">
+		<db-attribute-pair source="ID" target="USER_FK"/>
+	</db-relationship>
+	<db-relationship name="DeviceType" source="DEVICE" target="DEVICETYPE" toMany="false">
+		<db-attribute-pair source="DEVICETYPE_ID" target="ID"/>
+	</db-relationship>
+	<db-relationship name="Node" source="DEVICE" target="NODE" toMany="false">
+		<db-attribute-pair source="NODE_ID" target="ID"/>
+	</db-relationship>
+	<db-relationship name="OUTPUTDEVICEJOIN" source="DEVICE" target="DEVICE_TO_OUTPUTDEVICE" toMany="true">
+		<db-attribute-pair source="ID" target="DEVICE_FK"/>
+	</db-relationship>
+	<db-relationship name="Devices" source="DEVICETYPE" target="DEVICE" toMany="true">
+		<db-attribute-pair source="ID" target="DEVICETYPE_ID"/>
+	</db-relationship>
+	<db-relationship name="InputEvents" source="DEVICETYPE" target="INPUTEVENT" toMany="true">
+		<db-attribute-pair source="ID" target="DEVICETYPE_ID"/>
+	</db-relationship>
+	<db-relationship name="OutputDevices" source="DEVICETYPE" target="OUTPUTDEVICE" toMany="true">
+		<db-attribute-pair source="ID" target="DEVICETYPE_ID"/>
+	</db-relationship>
+	<db-relationship name="OutputEvents" source="DEVICETYPE" target="OUTPUTEVENT" toMany="true">
+		<db-attribute-pair source="ID" target="DEVICETYPE_ID"/>
+	</db-relationship>
+	<db-relationship name="DEVICE" source="DEVICE_TO_OUTPUTDEVICE" target="DEVICE" toMany="false">
+		<db-attribute-pair source="DEVICE_FK" target="ID"/>
+	</db-relationship>
+	<db-relationship name="OUTPUTDEVICE" source="DEVICE_TO_OUTPUTDEVICE" target="OUTPUTDEVICE" toMany="false">
+		<db-attribute-pair source="OUTPUTDEVICE_FK" target="ID"/>
+	</db-relationship>
+	<db-relationship name="GROUP" source="GROUPS_TO_PERMISSIONS" target="AGROUP" toMany="false">
+		<db-attribute-pair source="GROUP_FK" target="ID"/>
+	</db-relationship>
+	<db-relationship name="PERMISSION" source="GROUPS_TO_PERMISSIONS" target="PERMISSION" toMany="false">
+		<db-attribute-pair source="PERMISSION_FK" target="ID"/>
+	</db-relationship>
+	<db-relationship name="DeviceType" source="INPUTEVENT" target="DEVICETYPE" toMany="false">
+		<db-attribute-pair source="DEVICETYPE_ID" target="ID"/>
+	</db-relationship>
+	<db-relationship name="Children" source="NODE" target="NODE" toMany="true">
+		<db-attribute-pair source="ID" target="PARENT_ID"/>
+	</db-relationship>
+	<db-relationship name="Parent" source="NODE" target="NODE" toMany="false">
+		<db-attribute-pair source="PARENT_ID" target="ID"/>
+	</db-relationship>
+	<db-relationship name="untitledRel" source="NODE" target="DEVICE" toMany="true">
+		<db-attribute-pair source="ID" target="NODE_ID"/>
+	</db-relationship>
+	<db-relationship name="DEVICEJOIN" source="OUTPUTDEVICE" target="DEVICE_TO_OUTPUTDEVICE" toMany="true">
+		<db-attribute-pair source="ID" target="OUTPUTDEVICE_FK"/>
+	</db-relationship>
+	<db-relationship name="DeviceType" source="OUTPUTDEVICE" target="DEVICETYPE" toMany="false">
+		<db-attribute-pair source="DEVICETYPE_ID" target="ID"/>
+	</db-relationship>
+	<db-relationship name="DeviceType" source="OUTPUTEVENT" target="DEVICETYPE" toMany="false">
+		<db-attribute-pair source="DEVICETYPE_ID" target="ID"/>
+	</db-relationship>
+	<db-relationship name="GROUPJOIN" source="PERMISSION" target="GROUPS_TO_PERMISSIONS" toMany="true">
+		<db-attribute-pair source="ID" target="PERMISSION_FK"/>
+	</db-relationship>
+	<db-relationship name="GROUP" source="USERS_TO_GROUPS" target="AGROUP" toMany="false">
+		<db-attribute-pair source="GROUP_FK" target="ID"/>
+	</db-relationship>
+	<db-relationship name="USER" source="USERS_TO_GROUPS" target="AUSER" toMany="false">
+		<db-attribute-pair source="USER_FK" target="ID"/>
+	</db-relationship>
+	<obj-relationship name="deviceType" source="Device" target="DeviceType" deleteRule="Nullify" db-relationship-path="DeviceType"/>
+	<obj-relationship name="node" source="Device" target="Node" deleteRule="Nullify" db-relationship-path="Node"/>
+	<obj-relationship name="outputDevices" source="Device" target="OutputDevice" deleteRule="Deny" db-relationship-path="OUTPUTDEVICEJOIN.OUTPUTDEVICE"/>
+	<obj-relationship name="devices" source="DeviceType" target="Device" deleteRule="Deny" db-relationship-path="Devices"/>
+	<obj-relationship name="inputEvents" source="DeviceType" target="InputEvent" deleteRule="Deny" db-relationship-path="InputEvents"/>
+	<obj-relationship name="outputDevices" source="DeviceType" target="OutputDevice" deleteRule="Deny" db-relationship-path="OutputDevices"/>
+	<obj-relationship name="outputEvents" source="DeviceType" target="OutputEvent" deleteRule="Deny" db-relationship-path="OutputEvents"/>
+	<obj-relationship name="permissions" source="Group" target="Permission" deleteRule="Deny" db-relationship-path="PERMISSIONJOIN.PERMISSION"/>
+	<obj-relationship name="users" source="Group" target="User" deleteRule="Deny" db-relationship-path="USERJOIN.USER"/>
+	<obj-relationship name="deviceType" source="InputEvent" target="DeviceType" deleteRule="Nullify" db-relationship-path="DeviceType"/>
+	<obj-relationship name="children" source="Node" target="Node" deleteRule="Deny" db-relationship-path="Children"/>
+	<obj-relationship name="parent" source="Node" target="Node" deleteRule="Nullify" db-relationship-path="Parent"/>
+	<obj-relationship name="untitledRel" source="Node" target="Device" deleteRule="Deny" db-relationship-path="untitledRel"/>
+	<obj-relationship name="deviceType" source="OutputDevice" target="DeviceType" deleteRule="Nullify" db-relationship-path="DeviceType"/>
+	<obj-relationship name="devices" source="OutputDevice" target="Device" deleteRule="Deny" db-relationship-path="DEVICEJOIN.DEVICE"/>
+	<obj-relationship name="deviceType" source="OutputEvent" target="DeviceType" deleteRule="Nullify" db-relationship-path="DeviceType"/>
+	<obj-relationship name="groups" source="Permission" target="Group" deleteRule="Deny" db-relationship-path="GROUPJOIN.GROUP"/>
+	<obj-relationship name="groups" source="User" target="Group" deleteRule="Deny" db-relationship-path="GROUPJOIN.GROUP"/>
+</data-map>
