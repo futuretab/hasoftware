@@ -1,9 +1,8 @@
 *.class
 
 # Package Files #
-*.jar
 *.war
 *.ear
-/hasoftware-library/nbproject/private/
+/src/hasoftware-library/nbproject/private/
 /src/hasoftware-library/build/
 /src/hasoftware-library/dist/
