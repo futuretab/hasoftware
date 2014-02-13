@@ -3,9 +3,13 @@
 # Package Files #
 *.war
 *.ear
+/home/logs/
 /src/hasoftware-library/nbproject/private/
 /src/hasoftware-library/build/
 /src/hasoftware-library/dist/
 /src/hasoftware-server/nbproject/private/
 /src/hasoftware-server/dist/
 /src/hasoftware-server/build/
+/src/hasoftware-can/nbproject/private/
+/src/hasoftware-can/dist/
+/src/hasoftware-can/build/

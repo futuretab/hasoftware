@@ -4,6 +4,12 @@
 	 xsi:schemaLocation="http://cayenne.apache.org/schema/3.0/modelMap http://cayenne.apache.org/schema/3.0/modelMap.xsd"
 	 project-version="6">
 	<property name="defaultPackage" value="hasoftware.server.data"/>
+	<db-entity name="ACTIVEEVENT">
+		<db-attribute name="CREATEDON" type="BIGINT" isMandatory="true"/>
+		<db-attribute name="DEVICE_ID" type="INTEGER" isMandatory="true"/>
+		<db-attribute name="ID" type="INTEGER" isPrimaryKey="true" isGenerated="true" isMandatory="true"/>
+		<db-attribute name="UPDATEDON" type="BIGINT" isMandatory="true"/>
+	</db-entity>
 	<db-entity name="AGROUP">
 		<db-attribute name="CREATEDON" type="BIGINT" isMandatory="true"/>
 		<db-attribute name="ID" type="INTEGER" isPrimaryKey="true" isGenerated="true" isMandatory="true"/>
@@ -82,6 +88,10 @@
 		<db-attribute name="GROUP_FK" type="INTEGER" isPrimaryKey="true" isMandatory="true"/>
 		<db-attribute name="USER_FK" type="INTEGER" isPrimaryKey="true" isMandatory="true"/>
 	</db-entity>
+	<obj-entity name="ActiveEvent" className="hasoftware.server.data.ActiveEvent" dbEntityName="ACTIVEEVENT">
+		<obj-attribute name="createdOn" type="java.lang.Long" db-attribute-path="CREATEDON"/>
+		<obj-attribute name="updatedOn" type="java.lang.Long" db-attribute-path="UPDATEDON"/>
+	</obj-entity>
 	<obj-entity name="Device" className="hasoftware.server.data.Device" dbEntityName="DEVICE">
 		<obj-attribute name="address" type="java.lang.String" db-attribute-path="ADDRESS"/>
 		<obj-attribute name="createdOn" type="java.lang.Long" db-attribute-path="CREATEDON"/>
@@ -133,6 +143,9 @@
 		<obj-attribute name="updatedOn" type="java.lang.Long" db-attribute-path="UPDATEDON"/>
 		<obj-attribute name="username" type="java.lang.String" db-attribute-path="USERNAME"/>
 	</obj-entity>
+	<db-relationship name="Device" source="ACTIVEEVENT" target="DEVICE" toMany="false">
+		<db-attribute-pair source="DEVICE_ID" target="ID"/>
+	</db-relationship>
 	<db-relationship name="PERMISSIONJOIN" source="AGROUP" target="GROUPS_TO_PERMISSIONS" toMany="true">
 		<db-attribute-pair source="ID" target="GROUP_FK"/>
 	</db-relationship>
@@ -150,6 +163,12 @@
 	</db-relationship>
 	<db-relationship name="OUTPUTDEVICEJOIN" source="DEVICE" target="DEVICE_TO_OUTPUTDEVICE" toMany="true">
 		<db-attribute-pair source="ID" target="DEVICE_FK"/>
+	</db-relationship>
+	<db-relationship name="untitledRel" source="DEVICE" target="ACTIVEEVENT" toMany="true">
+		<db-attribute-pair source="ID" target="DEVICE_ID"/>
+	</db-relationship>
+	<db-relationship name="untitledRel1" source="DEVICE" target="ACTIVEEVENT" toMany="true">
+		<db-attribute-pair source="ID" target="DEVICE_ID"/>
 	</db-relationship>
 	<db-relationship name="Devices" source="DEVICETYPE" target="DEVICE" toMany="true">
 		<db-attribute-pair source="ID" target="DEVICETYPE_ID"/>
@@ -205,6 +224,7 @@
 	<db-relationship name="USER" source="USERS_TO_GROUPS" target="AUSER" toMany="false">
 		<db-attribute-pair source="USER_FK" target="ID"/>
 	</db-relationship>
+	<obj-relationship name="device" source="ActiveEvent" target="Device" deleteRule="Nullify" db-relationship-path="Device"/>
 	<obj-relationship name="deviceType" source="Device" target="DeviceType" deleteRule="Nullify" db-relationship-path="DeviceType"/>
 	<obj-relationship name="node" source="Device" target="Node" deleteRule="Nullify" db-relationship-path="Node"/>
 	<obj-relationship name="outputDevices" source="Device" target="OutputDevice" deleteRule="Deny" db-relationship-path="OUTPUTDEVICEJOIN.OUTPUTDEVICE"/>
