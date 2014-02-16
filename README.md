@@ -1,7 +1,7 @@
-Home Automation Software
-========================
+All the components are wriiten in Java as I need the main backend to run on Linux and the manager to run on Windows.
+The communication protocols are simple enough that components could just as eailty be written in any other language of choice.
 
-This is where the Home Automation Software will be located. It consists of the following initial modules ...
+It consists of the following initial modules ...
 
 Manager
 -------
@@ -18,7 +18,8 @@ Provides TCP/IP remote connections, hides database details, handles user/module 
 
 Messaging
 ---------
-The main purpose of this module is to process incoming events and produce outgoing events.
+The main purpose of this module is to process InputMessages and create OutputMessage using the configured Allocations.
+It will also maintain the ActiveEvent and HistoricalEvent information.
 
 CAN Interface
 -------------
