@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import java.lang.*?>
+<?import java.util.*?>
+<?import javafx.collections.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.paint.*?>
+
+<AnchorPane id="AnchorPane" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="500.0" prefWidth="790.0" xmlns:fx="http://javafx.com/fxml/1" xmlns="http://javafx.com/javafx/2.2" fx:controller="hasoftware.manager.view.OutputDeviceController">
+  <children>
+    <TableView id="outputDeviceTable" fx:id="tableOutputDevices" layoutX="5.0" layoutY="5.0" prefHeight="300.0" prefWidth="780.0">
+      <columns>
+        <TableColumn editable="false" minWidth="100.0" prefWidth="100.0" text="Name" />
+        <TableColumn editable="false" minWidth="130.0" prefWidth="130.0" text="Description" />
+        <TableColumn editable="false" minWidth="160.0" prefWidth="160.0" text="Address" />
+        <TableColumn editable="false" minWidth="75.0" prefWidth="75.0" text="Type" />
+        <TableColumn editable="false" minWidth="100.0" prefWidth="100.0" text="Serial Number" />
+        <TableColumn editable="false" minWidth="100.0" prefWidth="100.0" text="Created On" />
+        <TableColumn editable="false" minWidth="100.0" prefWidth="100.0" text="Updated On" />
+      </columns>
+    </TableView>
+    <Button id="outputDeviceNew" fx:id="buttonNew" layoutX="5.0" layoutY="312.0" mnemonicParsing="false" onAction="#onNew" text="New" />
+    <Button id="outputDeviceDelete" fx:id="buttonDelete" layoutX="56.0" layoutY="312.0" mnemonicParsing="false" onAction="#onDelete" text="Delete" />
+    <Button id="outputDeviceSave" fx:id="buttonSave" layoutX="118.0" layoutY="312.0" mnemonicParsing="false" onAction="#onSave" text="Save" />
+    <Label layoutX="240.0" layoutY="433.0" text="Serial Number" />
+    <Label layoutX="240.0" layoutY="384.0" text="Address" />
+    <Label layoutX="240.0" layoutY="409.0" text="Type" />
+    <Label layoutX="240.0" layoutY="336.0" text="Name" />
+    <Label layoutX="240.0" layoutY="360.0" text="Description" />
+    <TextField id="outputDeviceName" fx:id="textName" layoutX="320.0" layoutY="333.0" prefWidth="200.0" />
+    <TextField id="outputDeviceDescription" fx:id="textDescription" layoutX="320.0" layoutY="357.0" prefWidth="200.0" />
+    <TextField id="outputDeviceAddress" fx:id="textAddress" layoutX="320.0" layoutY="381.0" prefWidth="200.0" />
+    <ComboBox id="outputDeviceType" fx:id="comboDeviceType" layoutX="320.0" layoutY="406.0" prefHeight="21.0" prefWidth="200.0">
+      <items>
+        <FXCollections fx:factory="observableArrayList">
+          <String fx:value="Item 1" />
+          <String fx:value="Item 2" />
+          <String fx:value="Item 3" />
+        </FXCollections>
+      </items>
+    </ComboBox>
+    <TextField id="outputDeviceSerialNumber" fx:id="textSerialNumber" layoutX="320.0" layoutY="430.0" prefWidth="200.0" />
+  </children>
+</AnchorPane>

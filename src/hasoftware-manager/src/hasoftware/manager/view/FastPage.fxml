@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import java.lang.*?>
+<?import java.net.*?>
+<?import java.util.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.paint.*?>
+<?import javafx.scene.text.*?>
+
+<AnchorPane id="AnchorPane" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="500.0" prefWidth="750.0" xmlns:fx="http://javafx.com/fxml/1" xmlns="http://javafx.com/javafx/2.2" fx:controller="hasoftware.manager.view.FastPageController">
+  <children>
+    <ListView fx:id="listAvailableDevices" layoutX="14.0" layoutY="40.0" prefHeight="210.0" prefWidth="300.0" />
+    <ListView fx:id="listSelectedDevices" layoutX="326.0" layoutY="40.0" prefHeight="210.0" prefWidth="300.0" />
+    <ListView fx:id="listPredefinedMessages" layoutX="14.0" layoutY="379.0" prefHeight="73.0" prefWidth="612.0" />
+    <TextField fx:id="textMessage" layoutX="14.0" layoutY="310.0" prefWidth="612.0" />
+    <Label layoutX="14.0" layoutY="14.0" text="Available Recipients">
+      <font>
+        <Font name="System Bold" size="14.0" fx:id="x1" />
+      </font>
+    </Label>
+    <Label font="$x1" layoutX="326.0" layoutY="14.0" text="Selected Recipients" />
+    <Label font="$x1" layoutX="15.0" layoutY="353.0" text="Predefined Messages" />
+    <Label font="$x1" layoutX="14.0" layoutY="284.0" text="Message" />
+    <Button fx:id="buttonSend" layoutX="633.0" layoutY="310.0" mnemonicParsing="false" onAction="#onSend" prefWidth="80.0" text="Send" />
+    <Button id="buttonSend" layoutX="633.0" layoutY="379.0" mnemonicParsing="false" prefWidth="80.0" text="Delete" />
+    <Button id="buttonSend" layoutX="633.0" layoutY="405.0" mnemonicParsing="false" prefWidth="80.0" text="Add" />
+    <Button id="buttonSend" layoutX="633.0" layoutY="40.0" mnemonicParsing="false" onAction="#onClear" prefWidth="80.0" text="Clear" />
+    <Label fx:id="labelStatus" layoutX="14.0" layoutY="470.0" text="Status goes here" />
+    <Label fx:id="labelCount" alignment="CENTER_RIGHT" contentDisplay="LEFT" layoutX="604.0" layoutY="335.0" prefWidth="-1.0" text="170" textAlignment="LEFT">
+      <font>
+        <Font name="Courier New Bold" size="12.0" />
+      </font>
+    </Label>
+    <TextField fx:id="textSearch" layoutX="14.0" layoutY="253.0" prefWidth="300.0" promptText="Search ..." text="" />
+  </children>
+</AnchorPane>

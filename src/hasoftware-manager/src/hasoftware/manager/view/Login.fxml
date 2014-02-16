@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import java.lang.*?>
+<?import java.util.*?>
+<?import javafx.scene.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.*?>
+
+<AnchorPane id="AnchorPane" prefHeight="220.0" prefWidth="400.0" xmlns:fx="http://javafx.com/fxml/1" xmlns="http://javafx.com/javafx/2.2" fx:controller="hasoftware.manager.view.LoginController">
+  <children>
+    <Button fx:id="login" layoutX="299.0" layoutY="158.0" mnemonicParsing="false" onAction="#onLogin" text="Login">
+      <font>
+        <Font name="System Bold" size="12.0" fx:id="x1" />
+      </font>
+    </Button>
+    <Label id="" fx:id="status" layoutX="26.0" layoutY="190.0" prefWidth="360.0" text="Status goes here" textAlignment="LEFT">
+      <font>
+        <Font name="System Italic" size="12.0" />
+      </font>
+    </Label>
+    <Label font="$x1" layoutX="76.0" layoutY="71.0" text="Username" />
+    <Label font="$x1" layoutX="76.0" layoutY="103.0" text="Password" />
+    <Label layoutX="26.0" layoutY="21.0" text="NASCO System Manager">
+      <font>
+        <Font name="System Bold" size="18.0" />
+      </font>
+    </Label>
+    <PasswordField fx:id="password" layoutX="151.0" layoutY="100.0" prefWidth="200.0" />
+    <TextField fx:id="username" layoutX="151.0" layoutY="68.0" prefWidth="200.0" />
+    <Label fx:id="error" layoutX="76.0" layoutY="132.0" prefWidth="275.0" text="Error goes here" textFill="RED" />
+  </children>
+</AnchorPane>
