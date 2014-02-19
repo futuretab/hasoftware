@@ -1,5 +1,7 @@
 package hasoftware.api;
 
+import hasoftware.api.messages.CurrentEventRequest;
+import hasoftware.api.messages.CurrentEventResponse;
 import hasoftware.api.messages.ErrorResponse;
 import hasoftware.api.messages.InputMessageRequest;
 import hasoftware.api.messages.InputMessageResponse;
@@ -43,6 +45,8 @@ public class MessageFactory {
                     return (isRequest) ? new LocationRequest(cdefMessage) : new LocationResponse(cdefMessage);
                 case FunctionCode.Point:
                     return (isRequest) ? new PointRequest(cdefMessage) : new PointResponse(cdefMessage);
+                case FunctionCode.CurrentEvent:
+                    return (isRequest) ? new CurrentEventRequest(cdefMessage) : new CurrentEventResponse(cdefMessage);
             }
         }
         return message;

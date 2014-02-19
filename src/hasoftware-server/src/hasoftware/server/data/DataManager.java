@@ -213,6 +213,44 @@ public class DataManager {
     }
 
     // -------------------------------------------------------------------------
+    // ACTIVE EVENTS
+    // -------------------------------------------------------------------------
+    public List<ActiveEvent> getActiveEvents() {
+        SelectQuery selector = new SelectQuery(ActiveEvent.class);
+        return getContext().performQuery(selector);
+    }
+
+    public List<ActiveEvent> getActiveEvents(List<Integer> ids) {
+        List<ActiveEvent> result = new LinkedList<>();
+        for (Integer id : ids) {
+            ActiveEvent activeEvent = getActiveEventById(id);
+            if (activeEvent != null) {
+                result.add(activeEvent);
+            }
+        }
+        return result;
+    }
+
+    public ActiveEvent getActiveEventById(int id) {
+        return Cayenne.objectForPK(getContext(), ActiveEvent.class, id);
+    }
+
+    public ActiveEvent createActiveEvent(Device device) {
+        ActiveEvent activeEvent = getContext().newObject(ActiveEvent.class);
+        activeEvent.setDevice(device);
+        long now = System.currentTimeMillis();
+        activeEvent.setCreatedOn(now);
+        activeEvent.setUpdatedOn(now);
+        getContext().commitChanges();
+        return activeEvent;
+    }
+
+    public void deleteActiveEvent(ActiveEvent activeEvent) {
+        getContext().deleteObjects(activeEvent);
+        getContext().commitChanges();
+    }
+
+    // -------------------------------------------------------------------------
     // INPUT EVENTS
     // -------------------------------------------------------------------------
     public List<InputEvent> getInputEvents() {
@@ -235,7 +273,7 @@ public class DataManager {
         return Cayenne.objectForPK(getContext(), InputEvent.class, id);
     }
 
-    public InputEvent createInputEvent(DeviceType deviceType, String data, long createdOn) {
+    public InputEvent createInputEvent(DeviceType deviceType, String data) {
         InputEvent inputEvent = getContext().newObject(InputEvent.class);
         inputEvent.setDeviceType(deviceType);
         inputEvent.setData(data);
@@ -316,8 +354,9 @@ public class DataManager {
         outputDevice.setAddress(address);
         outputDevice.setDeviceType(deviceType);
         outputDevice.setSerialNumber(serialNumber);
-        outputDevice.setUpdatedOn(System.currentTimeMillis());
-        outputDevice.setCreatedOn(outputDevice.getUpdatedOn());
+        long now = System.currentTimeMillis();
+        outputDevice.setUpdatedOn(now);
+        outputDevice.setCreatedOn(now);
         getContext().commitChanges();
         return outputDevice;
     }
@@ -361,6 +400,10 @@ public class DataManager {
     // -------------------------------------------------------------------------
     // DEVICES
     // -------------------------------------------------------------------------
+    public Device getDeviceById(int id) {
+        return Cayenne.objectForPK(getContext(), Device.class, id);
+    }
+
     public final List<Device> getDeviceByNode(Node node) {
         Expression where = ExpressionFactory.matchExp(Device.NODE_PROPERTY, node);
         SelectQuery selector = new SelectQuery(Device.class, where);

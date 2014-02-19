@@ -18,4 +18,8 @@ public class Permission {
     public static final String ListLocation = "LIST LOCATION";
 
     public static final String ListPoint = "LIST POINT";
+
+    public static final String CreateActiveEvent = "CREATE ACTIVE EVENT";
+    public static final String ListActiveEvent = "LIST ACTIVE EVENT";
+    public static final String DeleteActiveEvent = "DELETE ACTIVE EVENT";
 }

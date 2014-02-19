@@ -7,12 +7,15 @@ import hasoftware.api.MessageFactory;
 import hasoftware.api.NotLoggedInException;
 import hasoftware.api.Permission;
 import hasoftware.api.PermissionException;
+import hasoftware.api.classes.CurrentEvent;
 import hasoftware.api.classes.InputMessage;
 import hasoftware.api.classes.Location;
 import hasoftware.api.classes.OutputDevice;
 import hasoftware.api.classes.OutputMessage;
 import hasoftware.api.classes.Point;
 import hasoftware.api.classes.TimeUTC;
+import hasoftware.api.messages.CurrentEventRequest;
+import hasoftware.api.messages.CurrentEventResponse;
 import hasoftware.api.messages.ErrorResponse;
 import hasoftware.api.messages.InputMessageRequest;
 import hasoftware.api.messages.InputMessageResponse;
@@ -29,6 +32,7 @@ import hasoftware.api.messages.PointRequest;
 import hasoftware.api.messages.PointResponse;
 import hasoftware.cdef.CDEFAction;
 import hasoftware.cdef.CDEFMessage;
+import hasoftware.server.data.ActiveEvent;
 import hasoftware.server.data.DataManager;
 import hasoftware.server.data.Device;
 import hasoftware.server.data.DeviceType;
@@ -107,6 +111,9 @@ public class ServerHandler extends SimpleChannelInboundHandler<CDEFMessage> {
                     case FunctionCode.Point:
                         response = handlePointRequest((PointRequest) request);
                         break;
+                    case FunctionCode.CurrentEvent:
+                        response = handleCurrentEventRequest((CurrentEventRequest) request);
+                        break;
                     default:
                         response = handleUnknownRequest(request);
                         break;
@@ -176,6 +183,67 @@ public class ServerHandler extends SimpleChannelInboundHandler<CDEFMessage> {
         logger.debug("[H:{} TN:{}] RECV NotifyRequest", _handlerId, request.getTransactionNumber());
         Notifications.add(this, request.getFunctionCodes());
         return null; // No response
+    }
+
+    private Message handleCurrentEventRequest(CurrentEventRequest request) throws NotLoggedInException, PermissionException {
+        logger.debug("[H:{} TN:{}] RECV handleCurrentEventRequest ({})", _handlerId, request.getTransactionNumber(), CDEFAction.getActionStr(request.getAction()));
+        checkLoggedIn();
+        CurrentEventResponse response = null;
+        List<Integer> ids = new LinkedList<>();
+        int action = request.getAction();
+        switch (action) {
+            // Create new ActiveEvents and notify
+            case CDEFAction.Create:
+                checkPermission(Permission.CreateActiveEvent);
+                response = request.createResponse();
+                for (CurrentEvent currentEvent : request.getCurrentEvents()) {
+                    Device device = _dm.getDeviceById(currentEvent.getDeviceId());
+                    if (device == null) {
+                        // TODO Handle errors
+                    } else {
+                        ActiveEvent obj = _dm.createActiveEvent(device);
+                        ids.add(obj.getId());
+                    }
+                }
+                break;
+
+            // Return all or some CurrentEvents
+            case CDEFAction.List:
+                checkPermission(Permission.ListActiveEvent);
+                response = new CurrentEventResponse(request.getTransactionNumber());
+                response.setAction(CDEFAction.List);
+                List<ActiveEvent> activeEvents;
+                if (request.getIds().isEmpty()) {
+                    activeEvents = _dm.getActiveEvents();
+                } else {
+                    activeEvents = _dm.getActiveEvents(request.getIds());
+                }
+                for (ActiveEvent activeEvent : activeEvents) {
+                    response.getCurrentEvents().add(
+                            new CurrentEvent(activeEvent.getId(),
+                                    activeEvent.getDevice().getId(),
+                                    new TimeUTC(activeEvent.getCreatedOn()),
+                                    new TimeUTC(activeEvent.getUpdatedOn())));
+                }
+                break;
+
+            // Delete existing ActiveEvents and notify
+            case CDEFAction.Delete:
+                checkPermission(Permission.DeleteActiveEvent);
+                response = request.createResponse();
+                for (Integer id : request.getIds()) {
+                    ActiveEvent activeEvent = _dm.getActiveEventById(id);
+                    if (activeEvent != null) {
+                        ids.add(activeEvent.getId());
+                        _dm.deleteActiveEvent(activeEvent);
+                    }
+                }
+                break;
+        }
+        if (!ids.isEmpty()) {
+            Notifications.notify(request.getFunctionCode(), request.getAction(), ids);
+        }
+        return response;
     }
 
     private Message handlePointRequest(PointRequest request) throws NotLoggedInException, PermissionException {
@@ -442,7 +510,7 @@ public class ServerHandler extends SimpleChannelInboundHandler<CDEFMessage> {
                     if (deviceType == null) {
                         // TODO Handle errors
                     }
-                    InputEvent inputEvent = _dm.createInputEvent(deviceType, inputMessage.getData(), inputMessage.getCreatedOn().getTimeUTC());
+                    InputEvent inputEvent = _dm.createInputEvent(deviceType, inputMessage.getData());
                     ids.add(inputEvent.getId());
                 }
                 break;

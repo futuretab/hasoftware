@@ -2,6 +2,7 @@ package hasoftware.messaging;
 
 import hasoftware.api.DeviceType;
 import hasoftware.api.FunctionCode;
+import hasoftware.api.InputMessageType;
 import hasoftware.api.Message;
 import hasoftware.api.classes.InputMessage;
 import hasoftware.api.classes.OutputDevice;
@@ -172,8 +173,11 @@ public class MessagingController extends AbstractController {
                     }
 
                     // SECONDLY Handle adding or removing this event from current events
-                    // TODO Is this input event a alarm?
-                    // TODO Is this input event a cancel?
+                    if (inputMessage.getData().endsWith(InputMessageType.Alarm)) {
+                        // We should make sure that an current event for this devices does not exist
+                    } else if (inputMessage.getData().endsWith(InputMessageType.Cancel)) {
+                        // We should make sure that an current event for this devices exists
+                    }
                 } else {
                     if (!pointResponse.isError()) {
                         // The point did not exist in the database

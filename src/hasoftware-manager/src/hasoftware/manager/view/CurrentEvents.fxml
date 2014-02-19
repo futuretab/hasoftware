@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import java.lang.*?>
+<?import java.util.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.paint.*?>
+
+<AnchorPane id="AnchorPane" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="500.0" prefWidth="790.0" xmlns:fx="http://javafx.com/fxml/1" xmlns="http://javafx.com/javafx/2.2" fx:controller="hasoftware.manager.view.CurrentEventsController">
+  <children>
+    <ListView id="tableCurrentEvents" fx:id="listCurrentEvents" layoutX="5.0" layoutY="5.0" prefHeight="460.0" prefWidth="780.0" />
+    <Button fx:id="buttonCancel" layoutX="5.0" layoutY="471.0" mnemonicParsing="false" text="Cancel" />
+  </children>
+</AnchorPane>

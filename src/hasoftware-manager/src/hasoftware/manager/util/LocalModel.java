@@ -3,7 +3,10 @@ package hasoftware.manager.util;
 import hasoftware.api.DeviceType;
 import hasoftware.api.FunctionCode;
 import hasoftware.api.Message;
+import hasoftware.api.classes.CurrentEvent;
 import hasoftware.api.classes.OutputDevice;
+import hasoftware.api.messages.CurrentEventRequest;
+import hasoftware.api.messages.CurrentEventResponse;
 import hasoftware.api.messages.NotifyResponse;
 import hasoftware.api.messages.OutputDeviceRequest;
 import hasoftware.api.messages.OutputDeviceResponse;
@@ -31,7 +34,8 @@ public class LocalModel implements IEventCreator, IEventHandler {
     private LinkedBlockingQueue<Event> _eventQueue;
     private final ObservableList<String> _outputDeviceTypes;
     private final ObservableList<OutputDevice> _outputDevices;
-    private LinkedList<OutstandingRequest<Integer>> _requests;
+    private final ObservableList<CurrentEvent> _currentEvents;
+    private final LinkedList<OutstandingRequest<Integer>> _requests;
 
     private LocalModel() {
         _outputDeviceTypes = FXCollections.observableArrayList();
@@ -42,6 +46,8 @@ public class LocalModel implements IEventCreator, IEventHandler {
                 DeviceType.ANDROID.getCode());
 
         _outputDevices = FXCollections.observableArrayList();
+
+        _currentEvents = FXCollections.observableArrayList();
 
         _requests = new LinkedList<>();
     }
@@ -54,15 +60,29 @@ public class LocalModel implements IEventCreator, IEventHandler {
         return _outputDevices;
     }
 
+    public ObservableList<CurrentEvent> getCurrentEvents() {
+        return _currentEvents;
+    }
+
     public void addFunctionCodes(List<Integer> functionCodeList) {
         functionCodeList.add(FunctionCode.OutputDevice);
+        functionCodeList.add(FunctionCode.CurrentEvent);
     }
 
     public void onShown() {
-        OutputDeviceRequest request = new OutputDeviceRequest(CDEFAction.List);
-        _requests.add(new OutstandingRequest<>(request.getTransactionNumber(), 0));
-        Event event = new Event(EventType.SendMessage, request);
-        _eventQueue.add(event);
+        {
+            OutputDeviceRequest request = new OutputDeviceRequest(CDEFAction.List);
+            _requests.add(new OutstandingRequest<>(request.getTransactionNumber(), 0));
+            Event event = new Event(EventType.SendMessage, request);
+            _eventQueue.add(event);
+        }
+
+        {
+            CurrentEventRequest request = new CurrentEventRequest(CDEFAction.List);
+            _requests.add(new OutstandingRequest<>(request.getTransactionNumber(), 0));
+            Event event = new Event(EventType.SendMessage, request);
+            _eventQueue.add(event);
+        }
     }
 
     @Override
@@ -80,6 +100,8 @@ public class LocalModel implements IEventCreator, IEventHandler {
                     handleNotifyResponse((NotifyResponse) message);
                 } else if (message.getFunctionCode() == FunctionCode.OutputDevice) {
                     handleOutputDeviceResponse((OutputDeviceResponse) message);
+                } else if (message.getFunctionCode() == FunctionCode.CurrentEvent) {
+                    handleCurrentEventResponse((CurrentEventResponse) message);
                 }
                 break;
         }
@@ -89,6 +111,33 @@ public class LocalModel implements IEventCreator, IEventHandler {
     private void handleNotifyResponse(NotifyResponse notifyResponse) {
         if (notifyResponse.getNotifyFunctionCode() == FunctionCode.OutputDevice) {
             handleOutputDeviceNotify(notifyResponse.getAction(), notifyResponse.getIds());
+        } else if (notifyResponse.getNotifyFunctionCode() == FunctionCode.CurrentEvent) {
+            handleCurrentEventNotify(notifyResponse.getAction(), notifyResponse.getIds());
+        }
+    }
+
+    private void handleCurrentEventNotify(final int action, final List<Integer> ids) {
+        switch (action) {
+            case CDEFAction.Create:
+            case CDEFAction.Update:
+                CurrentEventRequest request = new CurrentEventRequest(CDEFAction.List);
+                request.getIds().addAll(ids);
+                _requests.add(new OutstandingRequest<>(request.getTransactionNumber(), 1));
+                _eventQueue.add(new Event(EventType.SendMessage, request));
+                break;
+
+            case CDEFAction.Delete:
+                Platform.runLater(() -> {
+                    for (int id : ids) {
+                        for (CurrentEvent currentEvent : _currentEvents) {
+                            if (currentEvent.getId() == id) {
+                                _currentEvents.remove(currentEvent);
+                                break;
+                            }
+                        }
+                    }
+                });
+                break;
         }
     }
 
@@ -114,6 +163,38 @@ public class LocalModel implements IEventCreator, IEventHandler {
                     }
                 });
                 break;
+        }
+    }
+
+    private void handleCurrentEventResponse(CurrentEventResponse currentEventResponse) {
+        for (OutstandingRequest<Integer> request : _requests) {
+            if (request.transactionNumber == currentEventResponse.getTransactionNumber()) {
+                if (!currentEventResponse.isError()) {
+                    if (currentEventResponse.getAction() == CDEFAction.List) {
+                        final List<CurrentEvent> currentEventList = currentEventResponse.getCurrentEvents();
+                        Platform.runLater(() -> {
+                            int index = -1;
+                            for (CurrentEvent currentEvent : currentEventList) {
+                                // Remove the old item from the list if it already exists
+                                for (int i = 0; i < _currentEvents.size(); i++) {
+                                    CurrentEvent tce = _currentEvents.get(i);
+                                    if (tce.getId() == currentEvent.getId()) {
+                                        index = i;
+                                        _currentEvents.remove(tce);
+                                        break;
+                                    }
+                                }
+                                // Add the new item to the list
+                                if (index != -1) {
+                                    _currentEvents.add(index, currentEvent);
+                                } else {
+                                    _currentEvents.add(currentEvent);
+                                }
+                            }
+                        });
+                    }
+                }
+            }
         }
     }
 

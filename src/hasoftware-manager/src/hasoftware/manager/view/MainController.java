@@ -28,7 +28,7 @@ public class MainController extends AbstractSceneController {
 
     private LinkedBlockingQueue<Event> eventQueue;
 
-    private final String[] tabs = {"FastPage", "Site", "OutputDevice"};
+    private final String[] tabs = {"FastPage", "Site", "OutputDevice", "CurrentEvents"};
     private final Map<String, AbstractSceneController> tabControllerMap = new HashMap<>();
 
     @Override

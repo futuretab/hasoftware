@@ -11,4 +11,5 @@ public class FunctionCode extends CDEFFunctionCode {
     public static final int OutputDevice = 0x1003;
     public static final int Location = 0x1004;
     public static final int Point = 0x1005;
+    public static final int CurrentEvent = 0x1006;
 }
