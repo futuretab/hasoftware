@@ -2,14 +2,19 @@ package hasoftware.server.data;
 
 import java.util.LinkedList;
 import java.util.List;
+import org.apache.cayenne.BaseContext;
 import org.apache.cayenne.Cayenne;
 import org.apache.cayenne.ObjectContext;
 import org.apache.cayenne.configuration.server.ServerRuntime;
 import org.apache.cayenne.exp.Expression;
 import org.apache.cayenne.exp.ExpressionFactory;
 import org.apache.cayenne.query.SelectQuery;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class DataManager {
+
+    private static Logger logger = LoggerFactory.getLogger(DataManager.class);
 
     private static DataManager _instance;
 
@@ -20,16 +25,14 @@ public class DataManager {
         return _instance;
     }
 
-    private ObjectContext _context;
+    private ServerRuntime _cayenneRuntime;
     private Node _root;
 
     private DataManager() {
     }
 
     public boolean initialize() {
-        ServerRuntime cayenneRuntime = new ServerRuntime("cayenne-project.xml");
-        _context = cayenneRuntime.getContext();
-
+        _cayenneRuntime = new ServerRuntime("cayenne-project.xml");
         // Create root node if required
         {
             List<Node> rootNodes = getNodeByParent(null);
@@ -39,6 +42,18 @@ public class DataManager {
     }
 
     public void close() {
+    }
+
+    private ObjectContext getContext() {
+        ObjectContext context = null;
+        try {
+            context = BaseContext.getThreadObjectContext();
+        } catch (IllegalStateException e) {
+            logger.debug("Creating a cayenne object context for thread: {}", Thread.currentThread().getName());
+            context = _cayenneRuntime.getContext();
+            BaseContext.bindThreadObjectContext(context);
+        }
+        return context;
     }
 
     // -------------------------------------------------------------------------
@@ -67,12 +82,12 @@ public class DataManager {
         Expression where = ExpressionFactory.matchExp(User.USERNAME_PROPERTY, username)
                 .andExp(ExpressionFactory.matchExp(User.PASSWORD_PROPERTY, password));
         SelectQuery selector = new SelectQuery(User.class, where);
-        return (User) Cayenne.objectForQuery(_context, selector);
+        return (User) Cayenne.objectForQuery(getContext(), selector);
     }
 
     public List<User> getUsers() {
         SelectQuery selector = new SelectQuery(User.class);
-        return _context.performQuery(selector);
+        return getContext().performQuery(selector);
     }
 
     public List<User> getUsers(List<Integer> ids) {
@@ -87,11 +102,11 @@ public class DataManager {
     }
 
     public User getUserById(int id) {
-        return Cayenne.objectForPK(_context, User.class, id);
+        return Cayenne.objectForPK(getContext(), User.class, id);
     }
 
     public User createUser(String firstName, String lastName, String username, String password, List<String> groups) {
-        User user = _context.newObject(User.class);
+        User user = getContext().newObject(User.class);
         user.setFirstName(firstName);
         user.setLastName(lastName);
         user.setUsername(username);
@@ -102,13 +117,13 @@ public class DataManager {
         for (String groupName : groups) {
             user.addToGroups(getGroupByName(groupName));
         }
-        _context.commitChanges();
+        getContext().commitChanges();
         return user;
     }
 
     public void deleteUser(User user) {
-        _context.deleteObjects(user);
-        _context.commitChanges();
+        getContext().deleteObjects(user);
+        getContext().commitChanges();
     }
 
     // -------------------------------------------------------------------------
@@ -116,7 +131,7 @@ public class DataManager {
     // -------------------------------------------------------------------------
     public List<Group> getGroups() {
         SelectQuery selector = new SelectQuery(Group.class);
-        return _context.performQuery(selector);
+        return getContext().performQuery(selector);
     }
 
     public List<Group> getGroups(List<Integer> ids) {
@@ -131,11 +146,11 @@ public class DataManager {
     }
 
     public Group getGroupById(int id) {
-        return Cayenne.objectForPK(_context, Group.class, id);
+        return Cayenne.objectForPK(getContext(), Group.class, id);
     }
 
     public Group createGroup(String name, List<String> permissions) {
-        Group group = _context.newObject(Group.class);
+        Group group = getContext().newObject(Group.class);
         group.setName(name);
         long now = System.currentTimeMillis();
         group.setCreatedOn(now);
@@ -143,19 +158,19 @@ public class DataManager {
         for (String permissionName : permissions) {
             group.addToPermissions(getPermissionByName(permissionName));
         }
-        _context.commitChanges();
+        getContext().commitChanges();
         return group;
     }
 
     public Group getGroupByName(String name) {
         Expression where = ExpressionFactory.matchExp(Group.NAME_PROPERTY, name);
         SelectQuery selector = new SelectQuery(Group.class, where);
-        return (Group) Cayenne.objectForQuery(_context, selector);
+        return (Group) Cayenne.objectForQuery(getContext(), selector);
     }
 
     public void deleteGroup(Group group) {
-        _context.deleteObjects(group);
-        _context.commitChanges();
+        getContext().deleteObjects(group);
+        getContext().commitChanges();
     }
 
     // -------------------------------------------------------------------------
@@ -163,7 +178,7 @@ public class DataManager {
     // -------------------------------------------------------------------------
     public List<Permission> getPermissions() {
         SelectQuery selector = new SelectQuery(Permission.class);
-        return _context.performQuery(selector);
+        return getContext().performQuery(selector);
     }
 
     public List<Permission> getPermissions(List<Integer> ids) {
@@ -178,23 +193,23 @@ public class DataManager {
     }
 
     public Permission getPermissionById(int id) {
-        return Cayenne.objectForPK(_context, Permission.class, id);
+        return Cayenne.objectForPK(getContext(), Permission.class, id);
     }
 
     public Permission createPermission(String name) {
-        Permission permission = _context.newObject(Permission.class);
+        Permission permission = getContext().newObject(Permission.class);
         permission.setName(name);
         long now = System.currentTimeMillis();
         permission.setCreatedOn(now);
         permission.setUpdatedOn(now);
-        _context.commitChanges();
+        getContext().commitChanges();
         return permission;
     }
 
     public Permission getPermissionByName(String name) {
         Expression where = ExpressionFactory.matchExp(Permission.NAME_PROPERTY, name);
         SelectQuery selector = new SelectQuery(Group.class, where);
-        return (Permission) Cayenne.objectForQuery(_context, selector);
+        return (Permission) Cayenne.objectForQuery(getContext(), selector);
     }
 
     // -------------------------------------------------------------------------
@@ -202,7 +217,7 @@ public class DataManager {
     // -------------------------------------------------------------------------
     public List<InputEvent> getInputEvents() {
         SelectQuery selector = new SelectQuery(InputEvent.class);
-        return _context.performQuery(selector);
+        return getContext().performQuery(selector);
     }
 
     public List<InputEvent> getInputEvents(List<Integer> ids) {
@@ -217,21 +232,21 @@ public class DataManager {
     }
 
     public InputEvent getInputEventById(int id) {
-        return Cayenne.objectForPK(_context, InputEvent.class, id);
+        return Cayenne.objectForPK(getContext(), InputEvent.class, id);
     }
 
     public InputEvent createInputEvent(DeviceType deviceType, String data, long createdOn) {
-        InputEvent inputEvent = _context.newObject(InputEvent.class);
+        InputEvent inputEvent = getContext().newObject(InputEvent.class);
         inputEvent.setDeviceType(deviceType);
         inputEvent.setData(data);
         inputEvent.setCreatedOn(System.currentTimeMillis());
-        _context.commitChanges();
+        getContext().commitChanges();
         return inputEvent;
     }
 
     public void deleteInputEvent(InputEvent inputEvent) {
-        _context.deleteObjects(inputEvent);
-        _context.commitChanges();
+        getContext().deleteObjects(inputEvent);
+        getContext().commitChanges();
     }
 
     // -------------------------------------------------------------------------
@@ -239,7 +254,7 @@ public class DataManager {
     // -------------------------------------------------------------------------
     public List<OutputEvent> getOutputEvents() {
         SelectQuery selector = new SelectQuery(OutputEvent.class);
-        return _context.performQuery(selector);
+        return getContext().performQuery(selector);
     }
 
     public List<OutputEvent> getOutputEvents(List<Integer> ids) {
@@ -254,21 +269,21 @@ public class DataManager {
     }
 
     public OutputEvent getOutputEventById(int id) {
-        return Cayenne.objectForPK(_context, OutputEvent.class, id);
+        return Cayenne.objectForPK(getContext(), OutputEvent.class, id);
     }
 
     public OutputEvent createOutputEvent(DeviceType deviceType, String data) {
-        OutputEvent outputEvent = _context.newObject(OutputEvent.class);
+        OutputEvent outputEvent = getContext().newObject(OutputEvent.class);
         outputEvent.setDeviceType(deviceType);
         outputEvent.setData(data);
         outputEvent.setCreatedOn(System.currentTimeMillis());
-        _context.commitChanges();
+        getContext().commitChanges();
         return outputEvent;
     }
 
     public void deleteOutputEvent(OutputEvent outputEvent) {
-        _context.deleteObjects(outputEvent);
-        _context.commitChanges();
+        getContext().deleteObjects(outputEvent);
+        getContext().commitChanges();
     }
 
     // -------------------------------------------------------------------------
@@ -276,7 +291,7 @@ public class DataManager {
     // -------------------------------------------------------------------------
     public List<OutputDevice> getOutputDevices() {
         SelectQuery selector = new SelectQuery(OutputDevice.class);
-        return _context.performQuery(selector);
+        return getContext().performQuery(selector);
     }
 
     public List<OutputDevice> getOutputDevices(List<Integer> ids) {
@@ -291,11 +306,11 @@ public class DataManager {
     }
 
     public OutputDevice getOutputDeviceById(int id) {
-        return Cayenne.objectForPK(_context, OutputDevice.class, id);
+        return Cayenne.objectForPK(getContext(), OutputDevice.class, id);
     }
 
     public OutputDevice createOutputDevice(String name, String description, String address, DeviceType deviceType, String serialNumber) {
-        OutputDevice outputDevice = _context.newObject(OutputDevice.class);
+        OutputDevice outputDevice = getContext().newObject(OutputDevice.class);
         outputDevice.setName(name);
         outputDevice.setDescription(description);
         outputDevice.setAddress(address);
@@ -303,7 +318,7 @@ public class DataManager {
         outputDevice.setSerialNumber(serialNumber);
         outputDevice.setUpdatedOn(System.currentTimeMillis());
         outputDevice.setCreatedOn(outputDevice.getUpdatedOn());
-        _context.commitChanges();
+        getContext().commitChanges();
         return outputDevice;
     }
 
@@ -316,14 +331,14 @@ public class DataManager {
             outputDevice.setDeviceType(deviceType);
             outputDevice.setSerialNumber(serialNumber);
             outputDevice.setUpdatedOn(System.currentTimeMillis());
-            _context.commitChanges();
+            getContext().commitChanges();
         }
         return outputDevice;
     }
 
     public void deleteOutputDevice(OutputDevice outputDevice) {
-        _context.deleteObjects(outputDevice);
-        _context.commitChanges();
+        getContext().deleteObjects(outputDevice);
+        getContext().commitChanges();
     }
 
     // -------------------------------------------------------------------------
@@ -332,14 +347,14 @@ public class DataManager {
     public DeviceType getDeviceTypeByCode(String code) {
         Expression where = ExpressionFactory.matchExp(DeviceType.CODE_PROPERTY, code);
         SelectQuery selector = new SelectQuery(DeviceType.class, where);
-        return (DeviceType) Cayenne.objectForQuery(_context, selector);
+        return (DeviceType) Cayenne.objectForQuery(getContext(), selector);
     }
 
     public DeviceType createDeviceType(String code, String description) {
-        DeviceType deviceType = _context.newObject(DeviceType.class);
+        DeviceType deviceType = getContext().newObject(DeviceType.class);
         deviceType.setCode(code);
         deviceType.setDescription(description);
-        _context.commitChanges();
+        getContext().commitChanges();
         return deviceType;
     }
 
@@ -349,36 +364,36 @@ public class DataManager {
     public final List<Device> getDeviceByNode(Node node) {
         Expression where = ExpressionFactory.matchExp(Device.NODE_PROPERTY, node);
         SelectQuery selector = new SelectQuery(Device.class, where);
-        return _context.performQuery(selector);
+        return getContext().performQuery(selector);
     }
 
     public final List<Device> getDeviceByAddress(String address) {
         Expression where = ExpressionFactory.matchExp(Device.ADDRESS_PROPERTY, address);
         SelectQuery selector = new SelectQuery(Device.class, where);
-        return _context.performQuery(selector);
+        return getContext().performQuery(selector);
     }
 
     // -------------------------------------------------------------------------
     // NODES
     // -------------------------------------------------------------------------
     public Node getNodeById(int id) {
-        return Cayenne.objectForPK(_context, Node.class, id);
+        return Cayenne.objectForPK(getContext(), Node.class, id);
     }
 
     public final List<Node> getNodeByParent(Node node) {
         Expression where = ExpressionFactory.matchExp(Node.PARENT_PROPERTY, node);
         SelectQuery selector = new SelectQuery(Node.class, where);
-        return _context.performQuery(selector);
+        return getContext().performQuery(selector);
     }
 
     public final Node createNode(String name, Node parent) {
-        Node node = _context.newObject(Node.class);
+        Node node = getContext().newObject(Node.class);
         node.setName(name);
         node.setParent(parent);
         long now = System.currentTimeMillis();
         node.setCreatedOn(now);
         node.setUpdatedOn(now);
-        _context.commitChanges();
+        getContext().commitChanges();
         return node;
     }
 
@@ -388,18 +403,18 @@ public class DataManager {
     public List<Device> getDevicesByType(DeviceType deviceType) {
         Expression where = ExpressionFactory.matchExp(Device.DEVICE_TYPE_PROPERTY, deviceType);
         SelectQuery selector = new SelectQuery(Device.class, where);
-        return _context.performQuery(selector);
+        return getContext().performQuery(selector);
     }
 
     public Device getDeviceByTypeAddress(DeviceType deviceType, String address) {
         Expression where1 = ExpressionFactory.matchExp(Device.DEVICE_TYPE_PROPERTY, deviceType);
         Expression where2 = ExpressionFactory.matchExp(Device.ADDRESS_PROPERTY, address);
         SelectQuery selector = new SelectQuery(Device.class, where1.andExp(where2));
-        return (Device) Cayenne.objectForQuery(_context, selector);
+        return (Device) Cayenne.objectForQuery(getContext(), selector);
     }
 
     public Device createDevice(String name, String address, String message1, String message2, DeviceType deviceType) {
-        Device device = _context.newObject(Device.class);
+        Device device = getContext().newObject(Device.class);
         device.setName(name);
         device.setAddress(address);
         device.setMessage1(message1);
@@ -408,7 +423,7 @@ public class DataManager {
         long now = System.currentTimeMillis();
         device.setCreatedOn(now);
         device.setUpdatedOn(now);
-        _context.commitChanges();
+        getContext().commitChanges();
         return device;
     }
 }
