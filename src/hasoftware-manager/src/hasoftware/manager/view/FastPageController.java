@@ -2,12 +2,12 @@ package hasoftware.manager.view;
 
 import de.jensd.fx.fontawesome.AwesomeIcon;
 import hasoftware.api.DeviceType;
+import hasoftware.api.LocalModel;
 import hasoftware.api.classes.OutputDevice;
 import hasoftware.api.classes.OutputMessage;
 import hasoftware.api.messages.OutputMessageRequest;
 import hasoftware.cdef.CDEFAction;
 import hasoftware.manager.util.AbstractSceneController;
-import hasoftware.api.LocalModel;
 import hasoftware.util.Event;
 import hasoftware.util.EventType;
 import hasoftware.util.StringUtil;
@@ -92,7 +92,6 @@ public class FastPageController extends AbstractSceneController {
 
         filteredOutputDevices = FXCollections.observableArrayList();
 
-        //outputDevices = FXCollections.observableArrayList();
         listAvailableDevices.setItems(localModel.getOutputDevices());
         listAvailableDevices.setCellFactory(new Callback<ListView, ListCell>() {
             @Override
