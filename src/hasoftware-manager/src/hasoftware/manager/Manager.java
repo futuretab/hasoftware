@@ -4,10 +4,10 @@ import ch.qos.logback.classic.LoggerContext;
 import ch.qos.logback.classic.util.ContextInitializer;
 import ch.qos.logback.core.joran.spi.JoranException;
 import de.jensd.fx.fontawesome.AwesomeDude;
+import hasoftware.api.LocalModel;
 import hasoftware.cdef.CDEFClient;
 import hasoftware.configuration.Configuration;
 import hasoftware.manager.util.AbstractSceneController;
-import hasoftware.manager.util.LocalModel;
 import hasoftware.manager.util.SceneController;
 import hasoftware.util.Event;
 import hasoftware.util.EventType;
@@ -103,6 +103,7 @@ public class Manager extends Application {
             }
         }
 
+        LocalModel.JavaFxApplication = true;
         LocalModel.getInstance().setEventQueue(_eventQueue);
 
         _timeCheckEvent = new Event(EventType.TimeCheck);

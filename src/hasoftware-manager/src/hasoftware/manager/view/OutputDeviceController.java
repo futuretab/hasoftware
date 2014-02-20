@@ -5,7 +5,7 @@ import hasoftware.api.classes.OutputDevice;
 import hasoftware.api.messages.OutputDeviceRequest;
 import hasoftware.cdef.CDEFAction;
 import hasoftware.manager.util.AbstractSceneController;
-import hasoftware.manager.util.LocalModel;
+import hasoftware.api.LocalModel;
 import hasoftware.manager.util.TimeUTCFormatCell;
 import hasoftware.util.Event;
 import hasoftware.util.EventType;

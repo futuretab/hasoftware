@@ -1,7 +1,7 @@
 package hasoftware.manager.view;
 
 import hasoftware.manager.util.AbstractSceneController;
-import hasoftware.manager.util.LocalModel;
+import hasoftware.api.LocalModel;
 import hasoftware.util.Event;
 import java.io.IOException;
 import java.net.URL;

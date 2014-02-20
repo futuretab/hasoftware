@@ -3,7 +3,9 @@ package hasoftware.messaging;
 import hasoftware.api.DeviceType;
 import hasoftware.api.FunctionCode;
 import hasoftware.api.InputMessageType;
+import hasoftware.api.LocalModel;
 import hasoftware.api.Message;
+import hasoftware.api.classes.CurrentEvent;
 import hasoftware.api.classes.InputMessage;
 import hasoftware.api.classes.OutputDevice;
 import hasoftware.api.classes.OutputMessage;
@@ -37,11 +39,13 @@ public class MessagingController extends AbstractController {
     private final String _password;
     private LinkedBlockingQueue<Event> _eventQueue;
     private final LinkedList<OutstandingRequest<InputMessage>> _requests;
+    private LocalModel _localModel;
 
     public MessagingController(Configuration configuration) {
         _username = configuration.getString("Username");
         _password = configuration.getString("Password");
         _requests = new LinkedList<>();
+        _localModel = LocalModel.getInstance();
     }
 
     @Override
@@ -78,11 +82,13 @@ public class MessagingController extends AbstractController {
     public boolean setEventQueue(LinkedBlockingQueue<Event> eventQueue) {
         logger.debug("setEventQueue");
         _eventQueue = eventQueue;
+        _localModel.setEventQueue(eventQueue);
         return true;
     }
 
     @Override
     public boolean handleEvent(Event event) {
+        _localModel.handleEvent(event);
         switch (event.getType()) {
             case TimeCheck:
                 break;
@@ -108,6 +114,7 @@ public class MessagingController extends AbstractController {
                         if (message.getFunctionCode() == FunctionCode.Login) {
                             // Send NotifyRequest for InputMessage
                             NotifyRequest notifyRequest = new NotifyRequest();
+                            _localModel.addFunctionCodes(notifyRequest.getFunctionCodes());
                             notifyRequest.getFunctionCodes().add(FunctionCode.InputMessage);
                             Event e = new Event(EventType.SendMessage);
                             e.setMessage(notifyRequest);
@@ -173,10 +180,17 @@ public class MessagingController extends AbstractController {
                     }
 
                     // SECONDLY Handle adding or removing this event from current events
+                    CurrentEvent currentEvent = _localModel.getCurrentEventByPoint(point);
                     if (inputMessage.getData().endsWith(InputMessageType.Alarm)) {
-                        // We should make sure that an current event for this devices does not exist
+                        // We should make sure that a current event for this devices does not exist
+                        if (currentEvent == null) {
+                            _localModel.createCurrentEvent(point);
+                        }
                     } else if (inputMessage.getData().endsWith(InputMessageType.Cancel)) {
-                        // We should make sure that an current event for this devices exists
+                        // We should make sure that a current event for this devices exists
+                        if (currentEvent != null) {
+                            _localModel.deleteCurrentEvent(currentEvent);
+                        }
                     }
                 } else {
                     if (!pointResponse.isError()) {

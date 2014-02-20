@@ -197,9 +197,10 @@ public class ServerHandler extends SimpleChannelInboundHandler<CDEFMessage> {
                 checkPermission(Permission.CreateActiveEvent);
                 response = request.createResponse();
                 for (CurrentEvent currentEvent : request.getCurrentEvents()) {
-                    Device device = _dm.getDeviceById(currentEvent.getDeviceId());
+                    Device device = _dm.getDeviceById(currentEvent.getPointId());
                     if (device == null) {
                         // TODO Handle errors
+                        logger.error("Create CurrentEvent for unknown Device [{}]", currentEvent.getPointId());
                     } else {
                         ActiveEvent obj = _dm.createActiveEvent(device);
                         ids.add(obj.getId());
@@ -344,7 +345,7 @@ public class ServerHandler extends SimpleChannelInboundHandler<CDEFMessage> {
         List<Integer> ids = new LinkedList<>();
         int action = request.getAction();
         switch (action) {
-            // Create new OutputEvents and notify
+            // Create new OutputDevices and notify
             case CDEFAction.Create:
                 checkPermission(Permission.CreateOutputDevice);
                 response = request.createResponse();
@@ -352,6 +353,7 @@ public class ServerHandler extends SimpleChannelInboundHandler<CDEFMessage> {
                     DeviceType deviceType = _dm.getDeviceTypeByCode(outputDevice.getDeviceTypeCode());
                     if (deviceType == null) {
                         // TODO Handle errors
+                        logger.error("Create OutputDevice for unknown DeviceType [{}]", outputDevice.getDeviceTypeCode());
                     } else {
                         hasoftware.server.data.OutputDevice obj = _dm.createOutputDevice(
                                 outputDevice.getName(),
@@ -371,6 +373,7 @@ public class ServerHandler extends SimpleChannelInboundHandler<CDEFMessage> {
                     DeviceType dt = _dm.getDeviceTypeByCode(outputDevice.getDeviceTypeCode());
                     if (dt == null) {
                         // TODO Handle errors
+                        logger.error("Update OutputDevice for unknown DeviceType [{}]", outputDevice.getDeviceTypeCode());
                     } else {
                         hasoftware.server.data.OutputDevice obj = _dm.updateOutputDevice(
                                 outputDevice.getId(),
@@ -446,6 +449,7 @@ public class ServerHandler extends SimpleChannelInboundHandler<CDEFMessage> {
                     DeviceType deviceType = _dm.getDeviceTypeByCode(outputMessage.getDeviceTypeCode());
                     if (deviceType == null) {
                         // TODO Handle errors
+                        logger.error("Create OutputEvent for unknown DeviceType [{}]", outputMessage.getDeviceTypeCode());
                     } else {
                         OutputEvent outputEvent = _dm.createOutputEvent(deviceType, outputMessage.getData());
                         ids.add(outputEvent.getId());
@@ -509,6 +513,7 @@ public class ServerHandler extends SimpleChannelInboundHandler<CDEFMessage> {
                     DeviceType deviceType = _dm.getDeviceTypeByCode(inputMessage.getDeviceTypeCode());
                     if (deviceType == null) {
                         // TODO Handle errors
+                        logger.error("Create InputEvent for unknown DeviceType [{}]", inputMessage.getDeviceTypeCode());
                     }
                     InputEvent inputEvent = _dm.createInputEvent(deviceType, inputMessage.getData());
                     ids.add(inputEvent.getId());

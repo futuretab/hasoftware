@@ -7,7 +7,7 @@ import hasoftware.api.classes.OutputMessage;
 import hasoftware.api.messages.OutputMessageRequest;
 import hasoftware.cdef.CDEFAction;
 import hasoftware.manager.util.AbstractSceneController;
-import hasoftware.manager.util.LocalModel;
+import hasoftware.api.LocalModel;
 import hasoftware.util.Event;
 import hasoftware.util.EventType;
 import hasoftware.util.StringUtil;
