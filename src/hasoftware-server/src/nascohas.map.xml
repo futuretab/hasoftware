@@ -74,7 +74,7 @@
 	</db-entity>
 	<db-entity name="OUTPUTEVENT">
 		<db-attribute name="CREATEDON" type="BIGINT" isMandatory="true"/>
-		<db-attribute name="DATA" type="VARCHAR" isMandatory="true" length="100"/>
+		<db-attribute name="DATA" type="VARCHAR" isMandatory="true" length="200"/>
 		<db-attribute name="DEVICETYPE_ID" type="INTEGER" isMandatory="true"/>
 		<db-attribute name="ID" type="INTEGER" isPrimaryKey="true" isGenerated="true" isMandatory="true"/>
 	</db-entity>

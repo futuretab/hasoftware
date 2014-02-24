@@ -133,12 +133,14 @@ public class LocalModel implements IEventCreator, IEventHandler {
         switch (event.getType()) {
             case ReceiveMessage:
                 Message message = event.getMessage();
-                if (message.getFunctionCode() == FunctionCode.Notify) {
-                    handleNotifyResponse((NotifyResponse) message);
-                } else if (message.getFunctionCode() == FunctionCode.OutputDevice) {
-                    handleOutputDeviceResponse((OutputDeviceResponse) message);
-                } else if (message.getFunctionCode() == FunctionCode.CurrentEvent) {
-                    handleCurrentEventResponse((CurrentEventResponse) message);
+                if (!message.isError()) {
+                    if (message.getFunctionCode() == FunctionCode.Notify) {
+                        handleNotifyResponse((NotifyResponse) message);
+                    } else if (message.getFunctionCode() == FunctionCode.OutputDevice) {
+                        handleOutputDeviceResponse((OutputDeviceResponse) message);
+                    } else if (message.getFunctionCode() == FunctionCode.CurrentEvent) {
+                        handleCurrentEventResponse((CurrentEventResponse) message);
+                    }
                 }
                 break;
         }
