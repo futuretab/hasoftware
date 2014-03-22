@@ -88,7 +88,6 @@ public abstract class Message {
     }
 
     public ErrorResponse createErrorResponse() {
-        ErrorResponse response = new ErrorResponse(_functionCode, _transactionNumber);
-        return response;
+        return new ErrorResponse(_functionCode, _transactionNumber);
     }
 }

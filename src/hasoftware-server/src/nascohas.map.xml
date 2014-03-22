@@ -34,6 +34,7 @@
 		<db-attribute name="MESSAGE2" type="VARCHAR" length="20"/>
 		<db-attribute name="NAME" type="VARCHAR" isMandatory="true" length="20"/>
 		<db-attribute name="NODE_ID" type="INTEGER" isMandatory="true"/>
+		<db-attribute name="PRIORITY" type="INTEGER"/>
 		<db-attribute name="UPDATEDON" type="BIGINT" isMandatory="true"/>
 	</db-entity>
 	<db-entity name="DEVICETYPE">
@@ -98,6 +99,7 @@
 		<obj-attribute name="message1" type="java.lang.String" db-attribute-path="MESSAGE1"/>
 		<obj-attribute name="message2" type="java.lang.String" db-attribute-path="MESSAGE2"/>
 		<obj-attribute name="name" type="java.lang.String" db-attribute-path="NAME"/>
+		<obj-attribute name="priority" type="java.lang.Integer" db-attribute-path="PRIORITY"/>
 		<obj-attribute name="updatedOn" type="java.lang.Long" db-attribute-path="UPDATEDON"/>
 	</obj-entity>
 	<obj-entity name="DeviceType" className="hasoftware.server.data.DeviceType" dbEntityName="DEVICETYPE">
@@ -228,6 +230,8 @@
 	<obj-relationship name="deviceType" source="Device" target="DeviceType" deleteRule="Nullify" db-relationship-path="DeviceType"/>
 	<obj-relationship name="node" source="Device" target="Node" deleteRule="Nullify" db-relationship-path="Node"/>
 	<obj-relationship name="outputDevices" source="Device" target="OutputDevice" deleteRule="Deny" db-relationship-path="OUTPUTDEVICEJOIN.OUTPUTDEVICE"/>
+	<obj-relationship name="untitledRel" source="Device" target="ActiveEvent" deleteRule="Deny" db-relationship-path="untitledRel"/>
+	<obj-relationship name="untitledRel1" source="Device" target="ActiveEvent" deleteRule="Deny" db-relationship-path="untitledRel1"/>
 	<obj-relationship name="devices" source="DeviceType" target="Device" deleteRule="Deny" db-relationship-path="Devices"/>
 	<obj-relationship name="inputEvents" source="DeviceType" target="InputEvent" deleteRule="Deny" db-relationship-path="InputEvents"/>
 	<obj-relationship name="outputDevices" source="DeviceType" target="OutputDevice" deleteRule="Deny" db-relationship-path="OutputDevices"/>

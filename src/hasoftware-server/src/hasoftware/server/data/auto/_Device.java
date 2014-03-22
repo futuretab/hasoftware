@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.apache.cayenne.CayenneDataObject;
 
+import hasoftware.server.data.ActiveEvent;
 import hasoftware.server.data.DeviceType;
 import hasoftware.server.data.Node;
 import hasoftware.server.data.OutputDevice;
@@ -21,10 +22,13 @@ public abstract class _Device extends CayenneDataObject {
     public static final String MESSAGE1_PROPERTY = "message1";
     public static final String MESSAGE2_PROPERTY = "message2";
     public static final String NAME_PROPERTY = "name";
+    public static final String PRIORITY_PROPERTY = "priority";
     public static final String UPDATED_ON_PROPERTY = "updatedOn";
     public static final String DEVICE_TYPE_PROPERTY = "deviceType";
     public static final String NODE_PROPERTY = "node";
     public static final String OUTPUT_DEVICES_PROPERTY = "outputDevices";
+    public static final String UNTITLED_REL_PROPERTY = "untitledRel";
+    public static final String UNTITLED_REL1_PROPERTY = "untitledRel1";
 
     public static final String ID_PK_COLUMN = "ID";
 
@@ -63,6 +67,13 @@ public abstract class _Device extends CayenneDataObject {
         return (String)readProperty(NAME_PROPERTY);
     }
 
+    public void setPriority(Integer priority) {
+        writeProperty(PRIORITY_PROPERTY, priority);
+    }
+    public Integer getPriority() {
+        return (Integer)readProperty(PRIORITY_PROPERTY);
+    }
+
     public void setUpdatedOn(Long updatedOn) {
         writeProperty(UPDATED_ON_PROPERTY, updatedOn);
     }
@@ -97,6 +108,30 @@ public abstract class _Device extends CayenneDataObject {
     @SuppressWarnings("unchecked")
     public List<OutputDevice> getOutputDevices() {
         return (List<OutputDevice>)readProperty(OUTPUT_DEVICES_PROPERTY);
+    }
+
+
+    public void addToUntitledRel(ActiveEvent obj) {
+        addToManyTarget(UNTITLED_REL_PROPERTY, obj, true);
+    }
+    public void removeFromUntitledRel(ActiveEvent obj) {
+        removeToManyTarget(UNTITLED_REL_PROPERTY, obj, true);
+    }
+    @SuppressWarnings("unchecked")
+    public List<ActiveEvent> getUntitledRel() {
+        return (List<ActiveEvent>)readProperty(UNTITLED_REL_PROPERTY);
+    }
+
+
+    public void addToUntitledRel1(ActiveEvent obj) {
+        addToManyTarget(UNTITLED_REL1_PROPERTY, obj, true);
+    }
+    public void removeFromUntitledRel1(ActiveEvent obj) {
+        removeToManyTarget(UNTITLED_REL1_PROPERTY, obj, true);
+    }
+    @SuppressWarnings("unchecked")
+    public List<ActiveEvent> getUntitledRel1() {
+        return (List<ActiveEvent>)readProperty(UNTITLED_REL1_PROPERTY);
     }
 
 

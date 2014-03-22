@@ -124,7 +124,7 @@ public class CurrentEventsController extends AbstractSceneController {
             icon.setText(AwesomeIcon.MOBILE_PHONE.toString());
             icon.setTextFill(Color.RED);
 
-            name.setText("ID:" + currentEvent.getId() + " PointID:" + currentEvent.getPointId());
+            name.setText("ID:" + currentEvent.getId() + " PointID:" + currentEvent.getPoint().getId());
 
             long millis = System.currentTimeMillis() - currentEvent.getCreatedOn().getTimeUTC();
             long hours = TimeUnit.MILLISECONDS.toHours(millis);

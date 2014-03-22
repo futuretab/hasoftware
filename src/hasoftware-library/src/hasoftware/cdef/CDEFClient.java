@@ -135,7 +135,6 @@ public class CDEFClient extends AbstractController {
                 _messageQueue.removeFirst();
             }
         }
-
     }
 
     public Bootstrap configureBootstrap(Bootstrap bootstrap, EventLoopGroup eventLoop) {

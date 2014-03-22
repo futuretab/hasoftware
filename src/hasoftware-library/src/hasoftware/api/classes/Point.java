@@ -13,11 +13,12 @@ public class Point {
     private String _deviceTypeCode;
     private String _message1;
     private String _message2;
+    private int _priority;
     private TimeUTC _createdOn;
     private TimeUTC _updatedOn;
     private Collection<OutputDevice> _outputDevices = new LinkedList<>();
 
-    public Point(int id, int nodeId, String name, String address, String deviceTypeCode, String message1, String message2, TimeUTC createdOn, TimeUTC updatedOn) {
+    public Point(int id, int nodeId, String name, String address, String deviceTypeCode, String message1, String message2, int priority, TimeUTC createdOn, TimeUTC updatedOn) {
         _id = id;
         _nodeId = nodeId;
         _name = name;
@@ -25,6 +26,7 @@ public class Point {
         _deviceTypeCode = deviceTypeCode;
         _message1 = message1;
         _message2 = message2;
+        _priority = priority;
         _createdOn = createdOn;
         _updatedOn = updatedOn;
     }
@@ -37,6 +39,7 @@ public class Point {
         _deviceTypeCode = cdefMessage.getAsciiL();
         _message1 = cdefMessage.getAsciiL();
         _message2 = cdefMessage.getAsciiL();
+        _priority = cdefMessage.getU8();
         _createdOn = new TimeUTC(cdefMessage.getS64());
         _updatedOn = new TimeUTC(cdefMessage.getS64());
         int counter = cdefMessage.getU8();
@@ -53,6 +56,7 @@ public class Point {
         cdefMessage.putAsciiL(_deviceTypeCode);
         cdefMessage.putAsciiL(_message1);
         cdefMessage.putAsciiL(_message2);
+        cdefMessage.putU8(_priority);
         cdefMessage.putS64(_createdOn == null ? 0 : _createdOn.getTimeUTC());
         cdefMessage.putS64(_updatedOn == null ? 0 : _updatedOn.getTimeUTC());
         cdefMessage.putU8(_outputDevices.size());

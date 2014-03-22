@@ -79,7 +79,7 @@ public class LocalModel implements IEventCreator, IEventHandler {
 
     public CurrentEvent getCurrentEventByPoint(Point point) {
         for (CurrentEvent currentEvent : _currentEvents) {
-            if (currentEvent.getPointId() == point.getId()) {
+            if (currentEvent.getPoint().getId() == point.getId()) {
                 return currentEvent;
             }
         }
@@ -92,7 +92,7 @@ public class LocalModel implements IEventCreator, IEventHandler {
         }
         // Should really add it to _currentEvents in some eager caching fashion?
         CurrentEventRequest currentEventRequest = new CurrentEventRequest(CDEFAction.Create);
-        currentEventRequest.getCurrentEvents().add(new CurrentEvent(0, point.getId(), null, null));
+        currentEventRequest.getCurrentEvents().add(new CurrentEvent(0, point, null, null));
         _eventQueue.add(new Event(EventType.SendMessage, currentEventRequest));
     }
 

@@ -197,10 +197,10 @@ public class ServerHandler extends SimpleChannelInboundHandler<CDEFMessage> {
                 checkPermission(Permission.CreateActiveEvent);
                 response = request.createResponse();
                 for (CurrentEvent currentEvent : request.getCurrentEvents()) {
-                    Device device = _dm.getDeviceById(currentEvent.getPointId());
+                    Device device = _dm.getDeviceById(currentEvent.getPoint().getId());
                     if (device == null) {
                         // TODO Handle errors
-                        logger.error("Create CurrentEvent for unknown Device [{}]", currentEvent.getPointId());
+                        logger.error("Create CurrentEvent for unknown Device [{}]", currentEvent.getPoint().getId());
                     } else {
                         ActiveEvent obj = _dm.createActiveEvent(device);
                         ids.add(obj.getId());
@@ -220,9 +220,20 @@ public class ServerHandler extends SimpleChannelInboundHandler<CDEFMessage> {
                     activeEvents = _dm.getActiveEvents(request.getIds());
                 }
                 for (ActiveEvent activeEvent : activeEvents) {
+                    Device device = activeEvent.getDevice();
+                    Point point = new Point(device.getId(),
+                            device.getNode().getId(),
+                            device.getName(),
+                            device.getAddress(),
+                            device.getDeviceType().getCode(),
+                            device.getMessage1(),
+                            device.getMessage2(),
+                            device.getPriority(),
+                            new TimeUTC(device.getCreatedOn()),
+                            new TimeUTC(device.getUpdatedOn()));
                     response.getCurrentEvents().add(
                             new CurrentEvent(activeEvent.getId(),
-                                    activeEvent.getDevice().getId(),
+                                    point,
                                     new TimeUTC(activeEvent.getCreatedOn()),
                                     new TimeUTC(activeEvent.getUpdatedOn())));
                 }
@@ -269,6 +280,7 @@ public class ServerHandler extends SimpleChannelInboundHandler<CDEFMessage> {
                                         device.getDeviceType().getCode(),
                                         device.getMessage1(),
                                         device.getMessage2(),
+                                        device.getPriority(),
                                         new TimeUTC(device.getCreatedOn()),
                                         new TimeUTC(device.getUpdatedOn())));
                     }
@@ -282,6 +294,7 @@ public class ServerHandler extends SimpleChannelInboundHandler<CDEFMessage> {
                                 device.getDeviceType().getCode(),
                                 device.getMessage1(),
                                 device.getMessage2(),
+                                device.getPriority(),
                                 new TimeUTC(device.getCreatedOn()),
                                 new TimeUTC(device.getUpdatedOn()));
                         for (hasoftware.server.data.OutputDevice outputDevice : device.getOutputDevices()) {
