@@ -10,7 +10,8 @@ public enum DeviceType {
     KIRKDECT(261, "KIRKDECT"), //   Kirk DECT phone
     EMAIL(263, "EMAIL"), //         Email Address
     ANDROID(265, "ANDROID"), //     Andriod Modile Phone (via Notify My Android)
-    SMS(262, "SMS"), //             Mobile Phone (via SMS Message)
+    SMS(262, "SMS"), //             Mobile Phone (via SMS Web Service)
+    SMS2(268, "SMS2"), //           Mobile Phone (via F1103)
     PAGER(264, "PAGER"), //         Alphanumeric Pager
     TEMP(266, "TEMP"), //           Temperature Sensor
     SENSOR(267, "SENSOR"); //       Sensor

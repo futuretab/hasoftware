@@ -35,7 +35,6 @@ public class Messaging {
     private final static int TimeCheckPeriod = 1000;
     private final static String ConfigurationFilename = "hasoftware.ini";
     private final static String ConfigurationSection = "Messaging";
-    private final static String ConfigurationSectionServer = "Server";
 
     private CDEFClient _cdefClient;
     private MessagingController _messagingController;
@@ -64,14 +63,7 @@ public class Messaging {
 
         // Configure the CDEF Client
         {
-            String serverHost = config.getSectionString(ConfigurationSectionServer, "Host", null);
-            int serverPort = config.getSectionInt(ConfigurationSectionServer, "Port", -1);
-            if (serverPort == -1 || serverHost == null) {
-                logger.error("[Server] section details not set Host:{} Port:{}", serverHost, serverPort);
-                return false;
-            }
-
-            _cdefClient = new CDEFClient(serverHost, serverPort);
+            _cdefClient = new CDEFClient(config);
             _cdefClient.setEventQueue(_eventQueue);
             if (!_cdefClient.startUp()) {
                 logger.error("Failed to start CDEFClient");

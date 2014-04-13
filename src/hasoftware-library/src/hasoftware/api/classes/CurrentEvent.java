@@ -37,15 +37,31 @@ public class CurrentEvent {
         return _id;
     }
 
+    private void setId(int id) {
+        _id = id;
+    }
+
     public Point getPoint() {
         return _point;
+    }
+
+    private void setPoint(Point point) {
+        _point = point;
     }
 
     public TimeUTC getCreatedOn() {
         return _createdOn;
     }
 
+    private void setCreatedOn(TimeUTC createdOn) {
+        _createdOn = createdOn;
+    }
+
     public TimeUTC getUpdatedOn() {
         return _updatedOn;
+    }
+
+    private void setUpdatedOn(TimeUTC updatedOn) {
+        _updatedOn = updatedOn;
     }
 }

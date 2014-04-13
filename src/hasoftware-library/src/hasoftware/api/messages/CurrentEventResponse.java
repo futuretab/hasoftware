@@ -14,6 +14,10 @@ public class CurrentEventResponse extends Message {
     private int _action;
     private final List<CurrentEvent> _currentEvents = new LinkedList<>();
 
+    private CurrentEventResponse() {
+        super(FunctionCode.CurrentEvent, 0, CDEFSystemFlags.Response);
+    }
+
     public CurrentEventResponse(int transactionNumber) {
         super(FunctionCode.CurrentEvent, transactionNumber, CDEFSystemFlags.Response);
         _action = CDEFAction.None;

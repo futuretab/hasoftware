@@ -18,6 +18,9 @@ public class Point {
     private TimeUTC _updatedOn;
     private Collection<OutputDevice> _outputDevices = new LinkedList<>();
 
+    private Point() {
+    }
+
     public Point(int id, int nodeId, String name, String address, String deviceTypeCode, String message1, String message2, int priority, TimeUTC createdOn, TimeUTC updatedOn) {
         _id = id;
         _nodeId = nodeId;

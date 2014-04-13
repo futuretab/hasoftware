@@ -25,4 +25,8 @@ public class TimeUTC {
         return _timeUTC;
     }
 
+    public void setTimeUTC(long timeUTC) {
+        _timeUTC = timeUTC;
+    }
+
 }

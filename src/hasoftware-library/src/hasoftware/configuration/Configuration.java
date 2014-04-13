@@ -84,6 +84,10 @@ public class Configuration {
         return getSectionInt(_section, setting, defaultValue);
     }
 
+    public boolean getBoolean(String setting, boolean defaultValue) {
+        return getSectionBoolean(_section, setting, defaultValue);
+    }
+
     public String getSectionString(String sectionName, String settingName, String defaultValue) {
         ConfigurationSection section = findSection(sectionName, false);
         return (section == null) ? defaultValue : section.getString(settingName, defaultValue);
@@ -92,6 +96,11 @@ public class Configuration {
     public int getSectionInt(String sectionName, String settingName, int defaultValue) {
         ConfigurationSection section = findSection(sectionName, false);
         return (section == null) ? defaultValue : section.getInt(settingName, defaultValue);
+    }
+
+    public boolean getSectionBoolean(String sectionName, String settingName, boolean defaultValue) {
+        ConfigurationSection section = findSection(sectionName, false);
+        return (section == null) ? defaultValue : section.getBoolean(settingName, defaultValue);
     }
 
     private ConfigurationSection findSection(String name, boolean create) {

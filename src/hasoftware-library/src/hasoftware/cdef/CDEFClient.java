@@ -1,6 +1,7 @@
 package hasoftware.cdef;
 
 import hasoftware.api.Message;
+import hasoftware.configuration.Configuration;
 import hasoftware.util.AbstractController;
 import hasoftware.util.Event;
 import io.netty.bootstrap.Bootstrap;
@@ -22,6 +23,8 @@ import org.slf4j.LoggerFactory;
 public class CDEFClient extends AbstractController {
 
     private final static Logger logger = LoggerFactory.getLogger(CDEFClient.class);
+    private final static String ConfigurationSectionServer = "Server";
+
     private final int ConnectDelay = 2;
 
     private final EventLoopGroup _eventLoopGroup;
@@ -32,9 +35,9 @@ public class CDEFClient extends AbstractController {
     private final int _port;
     private boolean _connected;
 
-    public CDEFClient(String host, int port) {
-        _host = host;
-        _port = port;
+    public CDEFClient(Configuration configuration) {
+        _host = configuration.getSectionString(ConfigurationSectionServer, "Host", null);
+        _port = configuration.getSectionInt(ConfigurationSectionServer, "Port", -1);
         _eventLoopGroup = new NioEventLoopGroup();
         _clientHandler = new CDEFClientHandler(this);
         _messageQueue = new LinkedList<>();
@@ -48,6 +51,12 @@ public class CDEFClient extends AbstractController {
             logger.error("EventQueue not set");
             return false;
         }
+
+        if (_port == -1 || _host == null) {
+            logger.error("[Server] section details not set Host:{} Port:{}", _host, _port);
+            return false;
+        }
+
         _eventLoopGroup.schedule(new Runnable() {
             @Override
             public void run() {

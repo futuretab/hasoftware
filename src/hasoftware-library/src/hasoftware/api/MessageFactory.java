@@ -1,5 +1,7 @@
 package hasoftware.api;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import hasoftware.api.messages.CurrentEventRequest;
 import hasoftware.api.messages.CurrentEventResponse;
 import hasoftware.api.messages.ErrorResponse;
@@ -19,8 +21,41 @@ import hasoftware.api.messages.PointRequest;
 import hasoftware.api.messages.PointResponse;
 import hasoftware.cdef.CDEFMessage;
 import hasoftware.cdef.CDEFSystemFlags;
+import java.io.IOException;
 
 public class MessageFactory {
+
+    private static ObjectMapper _mapper = new ObjectMapper();
+
+    public static Message decodeJson(String data) {
+        try {
+            int index = data.indexOf(' ');
+            String type = data.substring(0, index);
+            String json = data.substring(index);
+            switch (type) {
+                case "LoginRequest":
+                    return _mapper.readValue(json, LoginRequest.class);
+                case "NotifyRequest":
+                    return _mapper.readValue(json, NotifyRequest.class);
+                case "CurrentEventRequest":
+                    return _mapper.readValue(json, CurrentEventRequest.class);
+                case "CurrentEventResponse":
+                    return _mapper.readValue(json, CurrentEventResponse.class);
+            }
+        } catch (IOException ex) {
+            System.out.println("Exception: " + ex.getMessage());
+        }
+        return null;
+    }
+
+    public static String encodeJson(Message message) {
+        String data = message.getClass().getSimpleName();
+        try {
+            data = data + " " + _mapper.writeValueAsString(message);
+        } catch (JsonProcessingException ex) {
+        }
+        return data;
+    }
 
     public static Message decode(CDEFMessage cdefMessage) {
         Message message = null;

@@ -11,7 +11,7 @@ public class Notifications {
 
     private final static Logger logger = LoggerFactory.getLogger(Notifications.class);
 
-    private final static HashMap<Integer, ArrayList<ServerHandler>> _codeMap;
+    private final static HashMap<Integer, ArrayList<INotificationTarget>> _codeMap;
 
     static {
         _codeMap = new HashMap<>();
@@ -20,22 +20,22 @@ public class Notifications {
     /**
      * Add notification codes for a given handler
      *
-     * @param handler
+     * @param notificationTarget
      * @param functionCodes
      */
-    public static void add(ServerHandler handler, List<Integer> functionCodes) {
+    public static void add(INotificationTarget notificationTarget, List<Integer> functionCodes) {
         synchronized (_codeMap) {
             for (Integer functionCode : functionCodes) {
-                ArrayList<ServerHandler> handlers;
+                ArrayList<INotificationTarget> targets;
                 if (_codeMap.containsKey(functionCode)) {
-                    handlers = _codeMap.get(functionCode);
+                    targets = _codeMap.get(functionCode);
                 } else {
-                    handlers = new ArrayList<>();
-                    _codeMap.put(functionCode, handlers);
+                    targets = new ArrayList<>();
+                    _codeMap.put(functionCode, targets);
                 }
-                if (!handlers.contains(handler)) {
-                    logger.debug("Add [FC:{} => H:{}]", functionCode, handler.getHandlerId());
-                    handlers.add(handler);
+                if (!targets.contains(notificationTarget)) {
+                    logger.debug("Add [FC:{} => H:{}]", functionCode, notificationTarget.getId());
+                    targets.add(notificationTarget);
                 }
             }
         }
@@ -44,22 +44,22 @@ public class Notifications {
     /**
      * Remove all notification codes for a given handler
      *
-     * @param handler
+     * @param notificationTarget
      */
-    public static void remove(ServerHandler handler) {
+    public static void remove(INotificationTarget notificationTarget) {
         synchronized (_codeMap) {
             for (Integer code : _codeMap.keySet()) {
-                ArrayList<ServerHandler> handlers = _codeMap.get(code);
-                if (handlers.contains(handler)) {
-                    logger.debug("Remove [FC:{} => H:{}]", code, handler.getHandlerId());
-                    handlers.remove(handler);
+                ArrayList<INotificationTarget> targets = _codeMap.get(code);
+                if (targets.contains(notificationTarget)) {
+                    logger.debug("Remove [FC:{} => H:{}]", code, notificationTarget.getId());
+                    targets.remove(notificationTarget);
                 }
             }
         }
     }
 
     /**
-     * Send a notification to all interested handlers
+     * Send a notification to all interested targets
      *
      * @param functionCode
      * @param action
@@ -72,10 +72,10 @@ public class Notifications {
         message.getIds().addAll(ids);
         synchronized (_codeMap) {
             if (_codeMap.containsKey(functionCode)) {
-                ArrayList<ServerHandler> handlers = _codeMap.get(functionCode);
-                for (ServerHandler handler : handlers) {
-                    logger.debug("Notify [FC:{} => H:{}]", functionCode, handler.getHandlerId());
-                    handler.send(message);
+                ArrayList<INotificationTarget> targets = _codeMap.get(functionCode);
+                for (INotificationTarget notificationTarget : targets) {
+                    logger.debug("Notify [FC:{} => H:{}]", functionCode, notificationTarget.getId());
+                    notificationTarget.send(message);
                 }
             }
         }

@@ -1,5 +1,6 @@
 package hasoftware.api;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import hasoftware.api.messages.ErrorResponse;
 import hasoftware.cdef.CDEFMessage;
 import hasoftware.cdef.CDEFSystemFlags;
@@ -75,14 +76,17 @@ public abstract class Message {
         _systemFlags = systemFlags;
     }
 
+    @JsonIgnore
     public boolean isRequest() {
         return ((_systemFlags & CDEFSystemFlags.Response) == 0);
     }
 
+    @JsonIgnore
     public boolean isResponse() {
         return ((_systemFlags & CDEFSystemFlags.Response) == CDEFSystemFlags.Response);
     }
 
+    @JsonIgnore
     public boolean isError() {
         return ((_systemFlags & CDEFSystemFlags.Error) == CDEFSystemFlags.Error);
     }

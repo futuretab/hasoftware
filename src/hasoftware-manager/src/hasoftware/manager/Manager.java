@@ -33,7 +33,6 @@ public class Manager extends Application {
     private final static int TimeCheckPeriod = 100;
     private final static String ConfigurationFilename = "hasoftware.ini";
     private final static String ConfigurationSection = "Manager";
-    private final static String ConfigurationSectionServer = "Server";
     private final static String ApplicationName = "manager";
 
     private static Logger logger;
@@ -89,13 +88,7 @@ public class Manager extends Application {
 
         // Configure the CDEF Client
         {
-            String serverHost = config.getSectionString(ConfigurationSectionServer, "Host", null);
-            int serverPort = config.getSectionInt(ConfigurationSectionServer, "Port", -1);
-            if (serverPort == -1 || serverHost == null) {
-                logger.error("[Server] section details not set Host:{} Port:{}", serverHost, serverPort);
-                return;
-            }
-            _cdefClient = new CDEFClient(serverHost, serverPort);
+            _cdefClient = new CDEFClient(config);
             _cdefClient.setEventQueue(_eventQueue);
             if (!_cdefClient.startUp()) {
                 logger.error("Failed to start CDEFClient");

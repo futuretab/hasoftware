@@ -31,6 +31,11 @@ public class ConfigurationSection {
         return (setting == null) ? defaultValue : Integer.parseInt(setting.getValue());
     }
 
+    public boolean getBoolean(String settingName, boolean defaultValue) {
+        ConfigurationSetting setting = findSetting(settingName, false);
+        return (setting == null) ? defaultValue : Boolean.parseBoolean(setting.getValue());
+    }
+
     private ConfigurationSetting findSetting(String name, boolean create) {
         ConfigurationSetting result = null;
         for (ConfigurationSetting cs : _settings) {
