@@ -31,7 +31,10 @@ Provides access to a the Kirk 500/1500 DECT phone systems allowing messages to b
 
 SMS Gateway Interface
 ---------------------
-Provides demostration of integration to a SMS gateway, and the Notify My Android service.
+Provides demostration of integration to
+* an SMS gateway
+* Notify My Android service
+* F1103 GPRS Modem
 
 Email Interface
 ---------------

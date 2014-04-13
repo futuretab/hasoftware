@@ -3,10 +3,21 @@ package hasoftware.mobile;
 import ch.qos.logback.classic.LoggerContext;
 import ch.qos.logback.classic.util.ContextInitializer;
 import ch.qos.logback.core.joran.spi.JoranException;
+import hasoftware.api.FunctionCode;
+import hasoftware.api.Message;
+import hasoftware.api.messages.LoginRequest;
+import hasoftware.api.messages.NotifyRequest;
+import hasoftware.api.messages.NotifyResponse;
+import hasoftware.api.messages.OutputMessageRequest;
+import hasoftware.cdef.CDEFAction;
 import hasoftware.cdef.CDEFClient;
 import hasoftware.configuration.Configuration;
+import hasoftware.util.AbstractController;
 import hasoftware.util.Event;
 import hasoftware.util.EventType;
+import hasoftware.util.StringUtil;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
 import org.slf4j.Logger;
@@ -35,23 +46,23 @@ public class MobileInterface {
     private final static int TimeCheckPeriod = 1000;
     private final static String ConfigurationFilename = "hasoftware.ini";
     private final static String ConfigurationSection = "Mobile Interface";
-    private final static String ConfigurationSectionServer = "Server";
 
-    private CDEFClient _cdefClient;
-    private SMSController _smsController;
-    private AndroidController _androidController;
     private final LinkedBlockingQueue<Event> _eventQueue;
+    private final List<AbstractController> _controllers;
     private Event _timeCheckEvent;
+    private String _serverUsername;
+    private String _serverPassword;
 
     private MobileInterface() {
         _eventQueue = new LinkedBlockingQueue<>();
+        _controllers = new ArrayList<>();
     }
 
     public void run() {
         if (startUp()) {
             passEvents();
-            shutDown();
         }
+        shutDown();
     }
 
     public boolean startUp() {
@@ -63,43 +74,55 @@ public class MobileInterface {
         }
         config.setSection(ConfigurationSection);
 
+        _serverUsername = config.getString("Username");
+        if (StringUtil.isNullOrEmpty(_serverUsername)) {
+            logger.error("Username not set");
+            return false;
+        }
+
+        _serverPassword = config.getString("Password");
+        if (StringUtil.isNullOrEmpty(_serverPassword)) {
+            logger.error("Password not set");
+            return false;
+        }
+
         // Configure the CDEF Client
         {
-            String serverHost = config.getSectionString(ConfigurationSectionServer, "Host", null);
-            int serverPort = config.getSectionInt(ConfigurationSectionServer, "Port", -1);
-            if (serverPort == -1 || serverHost == null) {
-                logger.error("[Server] section details not set Host:{} Port:{}", serverHost, serverPort);
+            CDEFClient controller = new CDEFClient(config);
+            controller.setEventQueue(_eventQueue);
+            if (!controller.startUp()) {
+                logger.error("Failed to start CDEFClient");
                 return false;
             }
-            _cdefClient = new CDEFClient(serverHost, serverPort);
-            _cdefClient.setEventQueue(_eventQueue);
-            if (!_cdefClient.startUp()) {
-                logger.error("Failed to start CDEFClient");
+            _controllers.add(controller);
+        }
+
+        // Configure the F1103 Controller
+        {
+            F1103Controller controller = new F1103Controller(config);
+            controller.setEventQueue(_eventQueue);
+            if (!controller.startUp()) {
+                logger.error("Failed to start F1103Controller");
                 return false;
             }
         }
 
         // Configure the SMS Controller
         {
-            _smsController = new SMSController(config);
-            _smsController.setEventQueue(_eventQueue);
-            if (!_smsController.startUp()) {
+            SMSController controller = new SMSController(config);
+            controller.setEventQueue(_eventQueue);
+            if (!controller.startUp()) {
                 logger.error("Failed to start SMSController");
-                // TODO a better way to startup and shutdown multiple controllers
-                _cdefClient.shutDown();
                 return false;
             }
         }
 
         // Configure the Andoid Controller
         {
-            _androidController = new AndroidController(config);
-            _androidController.setEventQueue(_eventQueue);
-            if (!_androidController.startUp()) {
+            AndroidController controller = new AndroidController(config);
+            controller.setEventQueue(_eventQueue);
+            if (!controller.startUp()) {
                 logger.error("Failed to start AndoidController");
-                // TODO a better way to startup and shutdown multiple controllers
-                _smsController.shutDown();
-                _cdefClient.shutDown();
                 return false;
             }
         }
@@ -144,16 +167,68 @@ public class MobileInterface {
         if (event.getType() != EventType.TimeCheck) {
             logger.debug("handleEvent [{} @{}]", event.getType().getCode(), event.getTime() / 1000);
         }
-        _cdefClient.handleEvent(event);
-        _smsController.handleEvent(event);
-        _androidController.handleEvent(event);
+        handleEvent(event);
+        for (AbstractController controller : _controllers) {
+            controller.handleEvent(event);
+        }
+    }
+
+    public boolean handleEvent(Event event) {
+        switch (event.getType()) {
+            case Connect: {
+                // Send LoginRequest
+                LoginRequest loginRequest = new LoginRequest();
+                loginRequest.setUsername(_serverUsername);
+                loginRequest.setPassword(_serverPassword);
+                Event e = new Event(EventType.SendMessage);
+                e.setMessage(loginRequest);
+                _eventQueue.add(e);
+            }
+            break;
+
+            case ReceiveMessage:
+                Message message = event.getMessage();
+                if (!message.isError() && message.isResponse()) {
+                    if (message.getFunctionCode() == FunctionCode.Login) {
+                        // Send NotifyRequest for OutputMessage
+                        NotifyRequest notifyRequest = new NotifyRequest();
+                        notifyRequest.getFunctionCodes().add(FunctionCode.OutputMessage);
+                        Event e = new Event(EventType.SendMessage);
+                        e.setMessage(notifyRequest);
+                        _eventQueue.add(e);
+                        // Send OutputMessage(list)
+                        OutputMessageRequest outputMessageRequest = new OutputMessageRequest();
+                        outputMessageRequest.setAction(CDEFAction.List);
+                        e = new Event(EventType.SendMessage);
+                        e.setMessage(outputMessageRequest);
+                        _eventQueue.add(e);
+                    } else if (message.getFunctionCode() == FunctionCode.Notify) {
+                        handleNotifyResponse((NotifyResponse) message);
+                    }
+                }
+                break;
+        }
+        return true;
     }
 
     private boolean shutDown() {
         logger.debug("shutDown");
-        _androidController.shutDown();
-        _smsController.shutDown();
-        _cdefClient.shutDown();
+        for (AbstractController controller : _controllers) {
+            controller.shutDown();
+        }
         return true;
+    }
+
+    private void handleNotifyResponse(NotifyResponse notifyResponse) {
+        if (notifyResponse.getAction() == CDEFAction.Create) {
+            logger.debug("handleNotifyResponse[Create] - {}", notifyResponse.getIds());
+            // When we get a notify for created output messages go get them
+            OutputMessageRequest outputMessageRequest = new OutputMessageRequest();
+            outputMessageRequest.setAction(CDEFAction.List);
+            outputMessageRequest.getIds().addAll(notifyResponse.getIds());
+            Event event = new Event(hasoftware.util.EventType.SendMessage);
+            event.setMessage(outputMessageRequest);
+            _eventQueue.add(event);
+        }
     }
 }

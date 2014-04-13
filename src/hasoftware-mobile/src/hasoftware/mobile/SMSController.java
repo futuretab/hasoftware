@@ -4,16 +4,12 @@ import hasoftware.api.DeviceType;
 import hasoftware.api.FunctionCode;
 import hasoftware.api.Message;
 import hasoftware.api.classes.OutputMessage;
-import hasoftware.api.messages.LoginRequest;
-import hasoftware.api.messages.NotifyRequest;
-import hasoftware.api.messages.NotifyResponse;
 import hasoftware.api.messages.OutputMessageRequest;
 import hasoftware.api.messages.OutputMessageResponse;
 import hasoftware.cdef.CDEFAction;
 import hasoftware.configuration.Configuration;
 import hasoftware.util.AbstractController;
 import hasoftware.util.Event;
-import hasoftware.util.EventType;
 import hasoftware.util.StringUtil;
 import java.io.IOException;
 import java.io.InputStream;
@@ -38,8 +34,6 @@ public class SMSController extends AbstractController {
 
     private final String _smsAddress;
     private final String _smsPassword;
-    private final String _serverUsername;
-    private final String _serverPassword;
     private ExecutorService _executorService;
     private LinkedBlockingQueue<Event> _eventQueue;
     private final Object _stats;
@@ -47,12 +41,12 @@ public class SMSController extends AbstractController {
     private long _statsQueued;
     private long _statsSuccess;
     private long _statsError;
+    private boolean _enabled;
 
     public SMSController(Configuration configuration) {
-        _smsAddress = configuration.getString("SMSAddress");
-        _smsPassword = configuration.getString("SMSPassword");
-        _serverUsername = configuration.getString("Username");
-        _serverPassword = configuration.getString("Password");
+        _enabled = configuration.getBoolean("SMS.Enabled", false);
+        _smsAddress = configuration.getString("SMS.Address");
+        _smsPassword = configuration.getString("SMS.Password");
         _stats = new Object();
         _statsTime = 0;
         _statsQueued = 0;
@@ -63,27 +57,21 @@ public class SMSController extends AbstractController {
     @Override
     public boolean startUp() {
         logger.debug("startUp");
-        if (StringUtil.isNullOrEmpty(_smsAddress)) {
-            logger.error("SMSAddress not set");
-            return false;
+        if (_enabled) {
+            if (StringUtil.isNullOrEmpty(_smsAddress)) {
+                logger.error("SMSAddress not set");
+                return false;
+            }
+            if (StringUtil.isNullOrEmpty(_smsPassword)) {
+                logger.error("SMSPassword not set");
+                return false;
+            }
+            if (_eventQueue == null) {
+                logger.error("Error EventQueue not set");
+                return false;
+            }
+            _executorService = Executors.newSingleThreadExecutor();
         }
-        if (StringUtil.isNullOrEmpty(_smsPassword)) {
-            logger.error("SMSPassword not set");
-            return false;
-        }
-        if (StringUtil.isNullOrEmpty(_serverUsername)) {
-            logger.error("Username not set");
-            return false;
-        }
-        if (StringUtil.isNullOrEmpty(_serverPassword)) {
-            logger.error("Password not set");
-            return false;
-        }
-        if (_eventQueue == null) {
-            logger.error("Error EventQueue not set");
-            return false;
-        }
-        _executorService = Executors.newSingleThreadExecutor();
         return true;
     }
 
@@ -118,55 +106,16 @@ public class SMSController extends AbstractController {
                 }
                 break;
 
-            case Connect: {
-                // Send LoginRequest
-                LoginRequest loginRequest = new LoginRequest();
-                loginRequest.setUsername(_serverUsername);
-                loginRequest.setPassword(_serverPassword);
-                Event e = new Event(EventType.SendMessage);
-                e.setMessage(loginRequest);
-                _eventQueue.add(e);
-            }
-            break;
-
             case ReceiveMessage:
                 Message message = event.getMessage();
                 if (!message.isError() && message.isResponse()) {
-                    if (message.getFunctionCode() == FunctionCode.Login) {
-                        // Send NotifyRequest for OutputMessage
-                        NotifyRequest notifyRequest = new NotifyRequest();
-                        notifyRequest.getFunctionCodes().add(FunctionCode.OutputMessage);
-                        Event e = new Event(EventType.SendMessage);
-                        e.setMessage(notifyRequest);
-                        _eventQueue.add(e);
-                        // Send OutputMessage(list)
-                        OutputMessageRequest outputMessageRequest = new OutputMessageRequest();
-                        outputMessageRequest.setAction(CDEFAction.List);
-                        e = new Event(EventType.SendMessage);
-                        e.setMessage(outputMessageRequest);
-                        _eventQueue.add(e);
-                    } else if (message.getFunctionCode() == FunctionCode.OutputMessage) {
+                    if (message.getFunctionCode() == FunctionCode.OutputMessage) {
                         handleOutputMessageResponse((OutputMessageResponse) message);
-                    } else if (message.getFunctionCode() == FunctionCode.Notify) {
-                        handleNotifyResponse((NotifyResponse) message);
                     }
                 }
                 break;
         }
         return true;
-    }
-
-    private void handleNotifyResponse(NotifyResponse notifyResponse) {
-        if (notifyResponse.getAction() == CDEFAction.Create) {
-            logger.debug("handleNotifyResponse[Create] - {}", notifyResponse.getIds());
-            // When we get a notify for created output messages go get them
-            OutputMessageRequest outputMessageRequest = new OutputMessageRequest();
-            outputMessageRequest.setAction(CDEFAction.List);
-            outputMessageRequest.getIds().addAll(notifyResponse.getIds());
-            Event event = new Event(hasoftware.util.EventType.SendMessage);
-            event.setMessage(outputMessageRequest);
-            _eventQueue.add(event);
-        }
     }
 
     private void handleOutputMessageResponse(OutputMessageResponse outputMessageResponse) {

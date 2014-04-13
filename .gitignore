@@ -3,6 +3,8 @@
 # Package Files #
 *.war
 *.ear
+*.suo
+*.csproj.user
 /home/logs/
 /src/hasoftware-library/nbproject/private/
 /src/hasoftware-library/build/
@@ -28,3 +30,8 @@
 /src/hasoftware-manager/nbproject/private/
 /src/hasoftware-manager/build/
 /src/hasoftware-manager/dist/
+/src.net/hasoftware-current-calls/bin
+/src.net/hasoftware-current-calls/obj
+/src.net/hasoftware-library/bin
+/src.net/hasoftware-library/obj
+/src.net/packages

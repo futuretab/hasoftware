@@ -1,0 +1,112 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{4231C2CA-19E6-43EF-991E-FA68E637E7E1}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>hasoftware</RootNamespace>
+    <AssemblyName>hasoftware-library</AssemblyName>
+    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="AltarNet3">
+      <HintPath>..\packages\AltarNet3.3.2.4.0\lib\net45\AltarNet3.dll</HintPath>
+    </Reference>
+    <Reference Include="NLog">
+      <HintPath>..\packages\NLog.2.1.0\lib\net45\NLog.dll</HintPath>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Api\AnError.cs" />
+    <Compile Include="Api\DeviceType.cs" />
+    <Compile Include="Api\ErrorCode.cs" />
+    <Compile Include="Api\FunctionCode.cs" />
+    <Compile Include="Api\InputMessageType.cs" />
+    <Compile Include="Api\LocalModel.cs" />
+    <Compile Include="Api\Message.cs" />
+    <Compile Include="Api\MessageFactory.cs" />
+    <Compile Include="Cdef\CdefAction.cs" />
+    <Compile Include="Cdef\CdefClient.cs" />
+    <Compile Include="Cdef\CdefErrorCode.cs" />
+    <Compile Include="Cdef\CdefFunctionCode.cs" />
+    <Compile Include="Cdef\CdefMessage.cs" />
+    <Compile Include="Cdef\CdefSystemFlags.cs" />
+    <Compile Include="Classes\CurrentEvent.cs" />
+    <Compile Include="Classes\InputMessage.cs" />
+    <Compile Include="Classes\Location.cs" />
+    <Compile Include="Classes\OutputDevice.cs" />
+    <Compile Include="Classes\OutputMessage.cs" />
+    <Compile Include="Classes\Point.cs" />
+    <Compile Include="Classes\TimeUTC.cs" />
+    <Compile Include="Configuration\XmlBuffer.cs" />
+    <Compile Include="Configuration\XmlConfiguration.cs" />
+    <Compile Include="Configuration\XmlSettings.cs" />
+    <Compile Include="Messages\CurrentEventRequest.cs" />
+    <Compile Include="Messages\CurrentEventResponse.cs" />
+    <Compile Include="Messages\ErrorResponse.cs" />
+    <Compile Include="Messages\InputMessageRequest.cs" />
+    <Compile Include="Messages\InputMessageResponse.cs" />
+    <Compile Include="Messages\LocationRequest.cs" />
+    <Compile Include="Messages\LocationResponse.cs" />
+    <Compile Include="Messages\LoginRequest.cs" />
+    <Compile Include="Messages\LoginResponse.cs" />
+    <Compile Include="Messages\NotifyRequest.cs" />
+    <Compile Include="Messages\NotifyResponse.cs" />
+    <Compile Include="Messages\OutputDeviceRequest.cs" />
+    <Compile Include="Messages\OutputDeviceResponse.cs" />
+    <Compile Include="Messages\OutputMessageRequest.cs" />
+    <Compile Include="Messages\OutputMessageResponse.cs" />
+    <Compile Include="Messages\PointRequest.cs" />
+    <Compile Include="Messages\PointResponse.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Util\AbstractController.cs" />
+    <Compile Include="Util\Event.cs" />
+    <Compile Include="Util\EventType.cs" />
+    <Compile Include="Util\ExtensionMethods.cs" />
+    <Compile Include="Util\IController.cs" />
+    <Compile Include="Util\IEventCreator.cs" />
+    <Compile Include="Util\IEventHandler.cs" />
+    <Compile Include="Util\MemArray.cs" />
+    <Compile Include="Util\OutstandingRequest.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup />
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>

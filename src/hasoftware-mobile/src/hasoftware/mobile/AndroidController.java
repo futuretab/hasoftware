@@ -37,8 +37,10 @@ public class AndroidController extends AbstractController {
     private long _statsQueued;
     private long _statsSuccess;
     private long _statsError;
+    private boolean _enabled;
 
     public AndroidController(Configuration configuration) {
+        _enabled = configuration.getBoolean("Andriod.Enabled", false);
         _stats = new Object();
         _statsTime = 0;
         _statsQueued = 0;
@@ -49,11 +51,13 @@ public class AndroidController extends AbstractController {
     @Override
     public boolean startUp() {
         logger.debug("startUp");
-        if (_eventQueue == null) {
-            logger.error("Error EventQueue not set");
-            return false;
+        if (_enabled) {
+            if (_eventQueue == null) {
+                logger.error("Error EventQueue not set");
+                return false;
+            }
+            _executorService = Executors.newSingleThreadExecutor();
         }
-        _executorService = Executors.newSingleThreadExecutor();
         return true;
     }
 
@@ -91,7 +95,6 @@ public class AndroidController extends AbstractController {
             case ReceiveMessage:
                 Message message = event.getMessage();
                 if (!message.isError() && message.isResponse()) {
-                    // We will assume SMS controller is taking care of login/notify/etc
                     if (message.getFunctionCode() == FunctionCode.OutputMessage) {
                         handleOutputMessageResponse((OutputMessageResponse) message);
                     }

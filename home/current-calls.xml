@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <configuration>
+    <display mode="window" width="1024" height="768">
+      <font name="Corbel" size="20" />
+      <background filename="images/default-1024x768.jpg" />
+    </display>
+    <labels>
+      <label0 type="static" x="8"   y="8"   width="400" height="35" format="Information Display" font-name="Corbel" fore-color="White" align="left"  />
+      <label1 type="time"   x="624" y="720" width="400" height="35" format="dddd d MMMM HH:mm"   font-name="Corbel" fore-color="White" align="right" />
+      <label2 type="static" x="516" y="40"  width="400" height="35" format="Outside Temperature" fore-color="White" align="right" />
+      <label3 type="static" x="516" y="75"  width="400" height="35" format="Pool Temperature"    fore-color="White" align="right" />
+      <label4 type="static" x="516" y="110" width="400" height="35" format="Light"               fore-color="White" align="right" />
+      <label5 type="static" x="516" y="145" width="400" height="35" format="Battery Voltage"     fore-color="White" align="right" />
+      <label6 type="file" x="920" y="40"  width="90" height="35" filename="S:\Temp\rrdtest\outside.html" refresh="60" fore-color="White" />
+      <label7 type="file" x="920" y="75"  width="90" height="35" filename="S:\Temp\rrdtest\pool.html"    refresh="60" fore-color="White" />
+      <label8 type="file" x="920" y="110" width="90" height="35" filename="S:\Temp\rrdtest\light.html"   refresh="60" fore-color="White" />
+      <label9 type="file" x="920" y="145" width="90" height="35" filename="S:\Temp\rrdtest\battery.html" refresh="60" fore-color="White" />
+      <!--
+      <heading10 type="status" x="8" y="730" width="300" height="35" format="" fore-color="White" align="left" />
+      -->
+    </labels>
+    <rows y="40" count="18" height="35" offset="36">
+      <column0 name="Priority" offset="8"   width="42"  format="$P"  align="center" font-name="Lucida Sans" />
+      <column1 name="Message"  offset="50"  width="300" format="$M1" align="left"   font-name="Lucida Sans" />
+      <column2 name="Elapsed"  offset="350" width="150" format="$E"  align="right"  font-name="Lucida Sans" />
+    </rows>
+    <priorities>
+      <priority0 configuration="0| DB |DOORBELL |Yellow |Black      |Black  |false |0"  sound="sounds/doorbell.wav" />
+      <priority1 configuration="1| FI |FIRE     |White  |OrangeRed  |Salmon |true  |*"  sound="sounds/switch.wav" />
+      <priority2 configuration="2| EM |EMERGENCY|White  |Red        |Salmon |true  |*"  sound="sounds/switch.wav" />
+      <priority3 configuration="3| SE |SECURITY |Black  |WhiteSmoke |White  |true  |0"  sound="sounds/switch.wav" />
+      <priority4 configuration="4| SA |ASSIST   |Black  |Yellow     |White  |true  |30" sound="sounds/switch.wav" />
+      <priority5 configuration="5| NC |CALL     |Black  |Yellow     |Yellow |false |60" sound="sounds/switch.wav" />
+      <priority6 configuration="6| NP |PRESENCE |Black  |Lime       |Lime   |false |0"  sound="sounds/switch.wav" />
+      <priority7 configuration="7| LI |LIGHTS   |Black  |Yellow     |Yellow |false |0"  sound="sounds/switch.wav" />
+      <priority8 configuration="8| OT |OTHER    |Black  |White      |White  |false |0"  sound="sounds/switch.wav" />
+      <priority9 configuration="9| FT |FAULT    |Red    |Black      |Black  |false |0"  sound="sounds/switch.wav" />
+    </priorities>
+    <comms>
+      <stream0 host="localhost" port="6969" />
+    </comms>
+  </configuration>
+</root>
