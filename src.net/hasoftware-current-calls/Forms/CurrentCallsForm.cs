@@ -583,7 +583,7 @@ namespace hasoftware_current_calls.Forms
         private Stream GetSoundStream(PriorityData priority)
         {
             var filename = priority.Sound;
-            return filename == null ? null : File.OpenRead(filename);
+            return string.IsNullOrEmpty(filename) ? null : File.OpenRead(filename);
         }
 
         private uint DetermineVolume(CurrentEventData soundEvent)

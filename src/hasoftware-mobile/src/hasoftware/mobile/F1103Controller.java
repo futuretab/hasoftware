@@ -35,7 +35,7 @@ public class F1103Controller extends AbstractController {
 
     public F1103Controller(Configuration configuration) {
         _enabled = configuration.getBoolean("F1103.Enabled", false);
-        _smsPort = configuration.getString("Port");
+        _smsPort = configuration.getString("F1103.Port");
         _stats = new Object();
         _statsTime = 0;
         _statsQueued = 0;

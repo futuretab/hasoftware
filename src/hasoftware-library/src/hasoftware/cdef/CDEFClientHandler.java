@@ -1,7 +1,7 @@
 package hasoftware.cdef;
 
+import hasoftware.api.CDEFMessageFactory;
 import hasoftware.api.Message;
-import hasoftware.api.MessageFactory;
 import hasoftware.util.Event;
 import hasoftware.util.EventType;
 import hasoftware.util.IEventCreator;
@@ -60,22 +60,17 @@ public class CDEFClientHandler extends SimpleChannelInboundHandler<CDEFMessage> 
 
     @Override
     protected void channelRead0(ChannelHandlerContext context, CDEFMessage message) {
-        Message response = MessageFactory.decode(message);
-        if (response.isResponse()) {                                            // Process response messages
-            //if (response.isError()) {
-            //    ErrorResponse errorResponse = (ErrorResponse) response;
-            //    logger.error("CDEFClientHandler received ErrorResponse");
-            //    for (int i = 0; i < errorResponse.getErrors().size(); i++) {
-            //        hasoftware.api.AnError error = errorResponse.getErrors().get(i);
-            //        logger.error("  {} - {} {}", error.getNumber(), error.getCode(), error.getMessage());
-            //    }
-            //} else {
-            Event event = new Event(EventType.ReceiveMessage);
-            event.setMessage(response);
-            _eventQueue.add(event);
-            //}
-        } else {
-            logger.error("RECV request!");
+        try {
+            Message response = CDEFMessageFactory.decode(message);
+            if (response.isResponse()) {
+                Event event = new Event(EventType.ReceiveMessage);
+                event.setMessage(response);
+                _eventQueue.add(event);
+            } else {
+                logger.error("RECV request!");
+            }
+        } catch (Exception e) {
+            logger.error("Exception: " + e.getMessage());
         }
     }
 

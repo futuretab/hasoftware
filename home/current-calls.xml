@@ -26,16 +26,17 @@
       <column2 name="Elapsed"  offset="350" width="150" format="$E"  align="right"  font-name="Lucida Sans" />
     </rows>
     <priorities>
-      <priority0 configuration="0| DB |DOORBELL |Yellow |Black      |Black  |false |0"  sound="sounds/doorbell.wav" />
-      <priority1 configuration="1| FI |FIRE     |White  |OrangeRed  |Salmon |true  |*"  sound="sounds/switch.wav" />
-      <priority2 configuration="2| EM |EMERGENCY|White  |Red        |Salmon |true  |*"  sound="sounds/switch.wav" />
-      <priority3 configuration="3| SE |SECURITY |Black  |WhiteSmoke |White  |true  |0"  sound="sounds/switch.wav" />
-      <priority4 configuration="4| SA |ASSIST   |Black  |Yellow     |White  |true  |30" sound="sounds/switch.wav" />
-      <priority5 configuration="5| NC |CALL     |Black  |Yellow     |Yellow |false |60" sound="sounds/switch.wav" />
-      <priority6 configuration="6| NP |PRESENCE |Black  |Lime       |Lime   |false |0"  sound="sounds/switch.wav" />
-      <priority7 configuration="7| LI |LIGHTS   |Black  |Yellow     |Yellow |false |0"  sound="sounds/switch.wav" />
-      <priority8 configuration="8| OT |OTHER    |Black  |White      |White  |false |0"  sound="sounds/switch.wav" />
-      <priority9 configuration="9| FT |FAULT    |Red    |Black      |Black  |false |0"  sound="sounds/switch.wav" />
+      <priority0  configuration=" 0| DB |DOORBELL |Yellow |Black      |Black  |false |0"  sound="sounds/doorbell.wav" />
+      <priority1  configuration=" 1| FI |FIRE     |White  |OrangeRed  |Salmon |true  |*"  sound="sounds/switch.wav" />
+      <priority2  configuration=" 2| EM |EMERGENCY|White  |Red        |Salmon |true  |*"  sound="sounds/switch.wav" />
+      <priority3  configuration=" 3| SE |SECURITY |Black  |WhiteSmoke |White  |true  |0"  sound="sounds/switch.wav" />
+      <priority4  configuration=" 4| SA |ASSIST   |Black  |Yellow     |White  |true  |30" sound="sounds/switch.wav" />
+      <priority5  configuration=" 5| NC |CALL     |Black  |Yellow     |Yellow |false |60" sound="sounds/switch.wav" />
+      <priority6  configuration=" 6| NP |PRESENCE |Black  |Lime       |Lime   |false |0"  sound="sounds/switch.wav" />
+      <priority7  configuration=" 7| LI |LIGHTS   |Black  |Yellow     |Yellow |false |0"  sound="sounds/switch.wav" />
+      <priority8  configuration=" 8| OT |OTHER    |Black  |White      |White  |false |0"  sound="sounds/switch.wav" />
+      <priority9  configuration=" 9| FT |FAULT    |Red    |Black      |Black  |false |0"  sound="sounds/switch.wav" />
+      <priority10 configuration="10| AC |ACTIVITY |Red    |White      |White  |false |0"  sound=""                  />
     </priorities>
     <comms>
       <stream0 host="localhost" port="6969" />

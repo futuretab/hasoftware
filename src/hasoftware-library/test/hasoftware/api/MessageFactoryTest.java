@@ -21,10 +21,10 @@ public class MessageFactoryTest {
             loginRequest.setUsername("username");
             loginRequest.setPassword("password");
 
-            String json = MessageFactory.encodeJson(loginRequest);
+            String json = JSONMessageFactory.encode(loginRequest);
             System.out.println(json);
 
-            Message decoded = MessageFactory.decodeJson(json);
+            Message decoded = JSONMessageFactory.decode(json);
             //System.out.println(decoded);
         }
 
@@ -32,10 +32,10 @@ public class MessageFactoryTest {
             NotifyRequest notifyRequest = new NotifyRequest();
             notifyRequest.getFunctionCodes().add(FunctionCode.CurrentEvent);
 
-            String json = MessageFactory.encodeJson(notifyRequest);
+            String json = JSONMessageFactory.encode(notifyRequest);
             System.out.println(json);
 
-            Message decoded = MessageFactory.decodeJson(json);
+            Message decoded = JSONMessageFactory.decode(json);
             //System.out.println(decoded);
         }
 
@@ -46,10 +46,10 @@ public class MessageFactoryTest {
             CurrentEvent currentEvent = new CurrentEvent(100, point, new TimeUTC(123456), new TimeUTC(123456));
             currentEventResponse.getCurrentEvents().add(currentEvent);
 
-            String json = MessageFactory.encodeJson(currentEventResponse);
+            String json = JSONMessageFactory.encode(currentEventResponse);
             System.out.println(json);
 
-            Message decoded = MessageFactory.decodeJson(json);
+            Message decoded = JSONMessageFactory.decode(json);
             //System.out.println(decoded);
         }
     }

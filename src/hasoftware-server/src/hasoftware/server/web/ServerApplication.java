@@ -1,7 +1,7 @@
 package hasoftware.server.web;
 
+import hasoftware.api.JSONMessageFactory;
 import hasoftware.api.Message;
-import hasoftware.api.MessageFactory;
 import hasoftware.server.Notifications;
 import hasoftware.server.ServerLogic;
 import org.glassfish.grizzly.http.HttpRequestPacket;
@@ -25,11 +25,11 @@ public class ServerApplication extends WebSocketApplication {
     @Override
     public void onMessage(WebSocket webSocket, String data) {
         ServerWebSocket serverWebSocket = (ServerWebSocket) webSocket;
-        Message request = MessageFactory.decodeJson(data);
+        Message request = JSONMessageFactory.decode(data);
         Message response = ServerLogic.getInstance().process(serverWebSocket, request);
         if (response != null) {
             response.setTransactionNumber(request.getTransactionNumber());      // Copy transaction numbers
-            serverWebSocket.send(MessageFactory.encodeJson(response));
+            serverWebSocket.send(JSONMessageFactory.encode(response));
         }
     }
 

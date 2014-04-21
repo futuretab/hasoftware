@@ -1,7 +1,7 @@
 package hasoftware.server;
 
+import hasoftware.api.CDEFMessageFactory;
 import hasoftware.api.Message;
-import hasoftware.api.MessageFactory;
 import hasoftware.cdef.CDEFMessage;
 import hasoftware.server.data.User;
 import io.netty.channel.ChannelHandlerContext;
@@ -36,7 +36,7 @@ public class ServerHandler extends SimpleChannelInboundHandler<CDEFMessage> {
 
     @Override
     protected void channelRead0(ChannelHandlerContext ctx, CDEFMessage message) throws Exception {
-        Message request = MessageFactory.decode(message);
+        Message request = CDEFMessageFactory.decode(message);
         Message response = ServerLogic.getInstance().process(_userContext, request);
         if (response != null) {
             response.setTransactionNumber(request.getTransactionNumber());      // Copy transaction numbers

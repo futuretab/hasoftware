@@ -1,7 +1,7 @@
 package hasoftware.server.web;
 
+import hasoftware.api.JSONMessageFactory;
 import hasoftware.api.Message;
-import hasoftware.api.MessageFactory;
 import hasoftware.server.INotificationTarget;
 import hasoftware.server.IUserContext;
 import hasoftware.server.data.User;
@@ -47,6 +47,6 @@ public class ServerWebSocket extends DefaultWebSocket implements IUserContext, I
 
     @Override
     public void send(Message message) {
-        send(MessageFactory.encodeJson(message));
+        send(JSONMessageFactory.encode(message));
     }
 }
