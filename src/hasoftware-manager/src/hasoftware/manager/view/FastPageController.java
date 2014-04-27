@@ -125,7 +125,8 @@ public class FastPageController extends AbstractSceneController {
 
     @FXML
     void onSend(ActionEvent actionEvent) {
-        OutputMessageRequest message = new OutputMessageRequest(CDEFAction.Create);
+        OutputMessageRequest message = new OutputMessageRequest();
+        message.setAction(CDEFAction.Create);
         for (OutputDevice outputDevice : selectedOutputDevices) {
             OutputMessage outputMessage = new OutputMessage();
             outputMessage.setId(0);

@@ -2,12 +2,8 @@
 using hasoftware.Classes;
 using hasoftware.Messages;
 using hasoftware.Util;
-using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace hasoftware.Api
 {
@@ -82,13 +78,13 @@ namespace hasoftware.Api
             }
         }
 
-        private void HandleCurrentEventNotify(CdefAction action, List<int> ids)
+        private void HandleCurrentEventNotify(int action, List<int> ids)
         {
             switch (action)
             {
                 case CdefAction.Create:
                 case CdefAction.Update:
-                    CurrentEventRequest request = new CurrentEventRequest(CdefAction.List);
+                    var request = new CurrentEventRequest {Action = CdefAction.List};
                     request.Ids.AddRange(ids);
                     _requests.Add(new OutstandingRequest<int>(request.TransactionNumber, 1));
                     _eventQueue.Enqueue(new Event(EventType.SendMessage, request));
@@ -111,13 +107,13 @@ namespace hasoftware.Api
             }
         }
 
-        private void HandleOutputDeviceNotify(CdefAction action, List<int> ids)
+        private void HandleOutputDeviceNotify(int action, List<int> ids)
         {
             switch (action)
             {
                 case CdefAction.Create:
                 case CdefAction.Update:
-                    OutputDeviceRequest request = new OutputDeviceRequest(CdefAction.List);
+                    var request = new OutputDeviceRequest {Action = CdefAction.List};
                     request.Ids.AddRange(ids);
                     _requests.Add(new OutstandingRequest<int>(request.TransactionNumber, 1));
                     _eventQueue.Enqueue(new Event(EventType.SendMessage, request));

@@ -26,6 +26,7 @@ import hasoftware.util.Event;
 import hasoftware.util.EventType;
 import hasoftware.util.OutstandingRequest;
 import hasoftware.util.StringUtil;
+import hasoftware.util.TimeUTC;
 import java.util.LinkedList;
 import java.util.concurrent.LinkedBlockingQueue;
 import org.slf4j.Logger;
@@ -109,7 +110,7 @@ public class MessagingController extends AbstractController {
                 if (message.isResponse()) {
                     if (message.isError()) {
                         ErrorResponse errorResponse = (ErrorResponse) message;
-                        logger.error("Messaging error: {}", errorResponse.getErrors().get(0).getMessage());
+                        logger.error("Messaging error: {}", errorResponse.getErrorMessages().get(0).getMessage());
                     } else {
                         if (message.getFunctionCode() == FunctionCode.Login) {
                             // Send NotifyRequest for InputMessage
@@ -153,25 +154,23 @@ public class MessagingController extends AbstractController {
                     String messagePrefix = isAlarm ? "ALARM: " : "CANCEL: ";
 
                     // FIRSTLY Handle sending messages to any of the allocated output devices
-                    OutputMessageRequest outputMessageRequest = new OutputMessageRequest(CDEFAction.Create);
+                    OutputMessageRequest outputMessageRequest = new OutputMessageRequest();
+                    outputMessageRequest.setAction(CDEFAction.Create);
                     for (OutputDevice outputDevice : point.getOutputDevices()) {
                         if (outputDevice.getDeviceTypeCode().equals(DeviceType.KIRKDECT.getCode())) {
                             outputMessageRequest.getOutputMessages().add(
-                                    new OutputMessage(0, outputDevice.getDeviceTypeCode(),
-                                            String.format("%1$s|%2$s|%3$s%4$s", "0", outputDevice.getAddress(), messagePrefix, point.getMessage2()),
-                                            null)
+                                    createOutputMessage(outputDevice.getDeviceTypeCode(),
+                                            String.format("%1$s|%2$s|%3$s%4$s", "0", outputDevice.getAddress(), messagePrefix, point.getMessage2()))
                             );
                         } else if (outputDevice.getDeviceTypeCode().equals(DeviceType.SMS.getCode())) {
                             outputMessageRequest.getOutputMessages().add(
-                                    new OutputMessage(0, outputDevice.getDeviceTypeCode(),
-                                            String.format("%1$s|%2$s|%3$s%4$s", "0", outputDevice.getAddress(), messagePrefix, point.getMessage1()),
-                                            null)
+                                    createOutputMessage(outputDevice.getDeviceTypeCode(),
+                                            String.format("%1$s|%2$s|%3$s%4$s", "0", outputDevice.getAddress(), messagePrefix, point.getMessage1()))
                             );
                         } else if (outputDevice.getDeviceTypeCode().equals(DeviceType.ANDROID.getCode())) {
                             outputMessageRequest.getOutputMessages().add(
-                                    new OutputMessage(0, outputDevice.getDeviceTypeCode(),
-                                            String.format("%1$s|%2$s|%3$s%4$s", "0", outputDevice.getAddress(), messagePrefix, point.getMessage1()),
-                                            null)
+                                    createOutputMessage(outputDevice.getDeviceTypeCode(),
+                                            String.format("%1$s|%2$s|%3$s%4$s", "0", outputDevice.getAddress(), messagePrefix, point.getMessage1()))
                             );
                         }
                     }
@@ -200,11 +199,21 @@ public class MessagingController extends AbstractController {
                     }
                 }
                 // In all cases we can now delete the input message
-                InputMessageRequest inputMessageRequest = new InputMessageRequest(CDEFAction.Delete);
+                InputMessageRequest inputMessageRequest = new InputMessageRequest();
+                inputMessageRequest.setAction(CDEFAction.Delete);
                 inputMessageRequest.getIds().add(inputMessage.getId());
                 _eventQueue.add(new Event(EventType.SendMessage, inputMessageRequest));
             }
         }
+    }
+
+    private OutputMessage createOutputMessage(String deviceTypeCode, String data) {
+        OutputMessage outputMessage = new OutputMessage();
+        outputMessage.setId(0);
+        outputMessage.setDeviceTypeCode(deviceTypeCode);
+        outputMessage.setData(data);
+        outputMessage.setCreatedOn(TimeUTC.Null);
+        return outputMessage;
     }
 
     private void handleInputMessageResponse(InputMessageResponse inputMessageResponse) {
@@ -217,7 +226,8 @@ public class MessagingController extends AbstractController {
                         // The address is the data without the last character
                         String data = inputMessage.getData();
                         String address = data.substring(0, data.length() - 1);
-                        PointRequest message = new PointRequest(CDEFAction.List);
+                        PointRequest message = new PointRequest();
+                        message.setAction(CDEFAction.List);
                         message.setAddress(address);
                         Event event = new Event(EventType.SendMessage, message);
                         _requests.add(new OutstandingRequest<>(message.getTransactionNumber(), inputMessage));

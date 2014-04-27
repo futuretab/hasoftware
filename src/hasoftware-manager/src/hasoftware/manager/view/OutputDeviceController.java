@@ -1,14 +1,15 @@
 package hasoftware.manager.view;
 
+import hasoftware.api.LocalModel;
 import hasoftware.api.Message;
 import hasoftware.api.classes.OutputDevice;
 import hasoftware.api.messages.OutputDeviceRequest;
 import hasoftware.cdef.CDEFAction;
 import hasoftware.manager.util.AbstractSceneController;
-import hasoftware.api.LocalModel;
 import hasoftware.manager.util.TimeUTCFormatCell;
 import hasoftware.util.Event;
 import hasoftware.util.EventType;
+import hasoftware.util.TimeUTC;
 import java.net.URL;
 import java.util.List;
 import java.util.ResourceBundle;
@@ -134,7 +135,8 @@ public class OutputDeviceController extends AbstractSceneController {
     @FXML
     void onDelete(ActionEvent event) {
         // NOTE: Here we just send the request, we update the table as part of the notification handler
-        OutputDeviceRequest message = new OutputDeviceRequest(CDEFAction.Delete);
+        OutputDeviceRequest message = new OutputDeviceRequest();
+        message.setAction(CDEFAction.Delete);
         message.getIds().add(selectedOutputDevice.getId());
         eventQueue.add(new Event(EventType.SendMessage, message));
     }
@@ -150,19 +152,32 @@ public class OutputDeviceController extends AbstractSceneController {
         // NOTE: Here we just send the request, we update the table as part of the notification handler
         // NOTE: We cant just copy the text fields into selectedOutputDevice as that would update the table
         //       So we have to create a temporary OutputDevice and copy all fields over and send that as the update
-        OutputDeviceRequest message = new OutputDeviceRequest(selectedOutputDevice == null ? CDEFAction.Create : CDEFAction.Update);
-        message.getOutputDevices().add(new OutputDevice(
-                selectedOutputDevice == null ? 0 : selectedOutputDevice.getId(),
-                textName.getText(),
-                textDescription.getText(),
-                textAddress.getText(),
-                comboDeviceType.getValue(),
-                textSerialNumber.getText(),
-                null,
-                null
-        ));
+        OutputDeviceRequest message = new OutputDeviceRequest();
+        message.setAction(selectedOutputDevice == null ? CDEFAction.Create : CDEFAction.Update);
+        message.getOutputDevices().add(
+                createOutputDevice(
+                        (selectedOutputDevice == null) ? 0 : selectedOutputDevice.getId(),
+                        textName.getText(),
+                        textDescription.getText(),
+                        textAddress.getText(),
+                        comboDeviceType.getValue(),
+                        textSerialNumber.getText())
+        );
         eventQueue.add(new Event(EventType.SendMessage, message));
         tableOutputDevices.getSelectionModel().select(null);
+    }
+
+    private OutputDevice createOutputDevice(int id, String name, String description, String address, String deviceTypeCode, String serialNumber) {
+        OutputDevice outputDevice = new OutputDevice();
+        outputDevice.setId(id);
+        outputDevice.setName(name);
+        outputDevice.setDescription(description);
+        outputDevice.setAddress(address);
+        outputDevice.setDeviceTypeCode(deviceTypeCode);
+        outputDevice.setSerialNumber(serialNumber);
+        outputDevice.setCreatedOn(TimeUTC.Null);
+        outputDevice.setUpdatedOn(TimeUTC.Null);
+        return outputDevice;
     }
 
     void onOutputDeviceSelectionChange(ObservableValue<? extends OutputDevice> obj, OutputDevice o, OutputDevice n) {

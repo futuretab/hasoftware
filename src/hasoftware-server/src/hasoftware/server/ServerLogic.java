@@ -7,15 +7,17 @@ import hasoftware.api.NotLoggedInException;
 import hasoftware.api.Permission;
 import hasoftware.api.PermissionException;
 import hasoftware.api.classes.CurrentEvent;
+import hasoftware.api.classes.ErrorMessage;
 import hasoftware.api.classes.InputMessage;
 import hasoftware.api.classes.Location;
 import hasoftware.api.classes.OutputDevice;
 import hasoftware.api.classes.OutputMessage;
 import hasoftware.api.classes.Point;
-import hasoftware.api.classes.TimeUTC;
 import hasoftware.api.messages.CurrentEventRequest;
 import hasoftware.api.messages.CurrentEventResponse;
 import hasoftware.api.messages.ErrorResponse;
+import hasoftware.api.messages.HeartbeatRequest;
+import hasoftware.api.messages.HeartbeatResponse;
 import hasoftware.api.messages.InputMessageRequest;
 import hasoftware.api.messages.InputMessageResponse;
 import hasoftware.api.messages.LocationRequest;
@@ -67,6 +69,9 @@ public class ServerLogic {
             if (request.isRequest()) {                                              // Process request messages
                 int functionCode = request.getFunctionCode();
                 switch (functionCode) {
+                    case FunctionCode.Heartbeat:
+                        response = handleHeartbeatRequest(userContext, (HeartbeatRequest) request);
+                        break;
                     case FunctionCode.Notify:
                         response = handleNotifyRequest(userContext, (NotifyRequest) request);
                         break;
@@ -106,8 +111,22 @@ public class ServerLogic {
 
     private ErrorResponse createErrorResponse(Message request, int number, int code, String message) {
         ErrorResponse errorResponse = request.createErrorResponse();
-        errorResponse.addError(number, code, message);
+        errorResponse.getErrorMessages().add(createErrorMessage(number, code, message));
         return errorResponse;
+    }
+
+    private ErrorMessage createErrorMessage(int number, int code, String message) {
+        ErrorMessage errorMessage = new ErrorMessage();
+        errorMessage.setCode(code);
+        errorMessage.setNumber(number);
+        errorMessage.setMessage(message);
+        return errorMessage;
+    }
+
+    private Message handleHeartbeatRequest(final IUserContext userContext, HeartbeatRequest request) {
+        logger.debug("[H:{} TN:{}] RECV HeartbeatRequest", userContext.getTarget().getId(), request.getTransactionNumber());
+        HeartbeatResponse response = new HeartbeatResponse(request.getTransactionNumber());
+        return response;
     }
 
     private Message handleLoginRequest(final IUserContext userContext, LoginRequest request) {
@@ -183,21 +202,8 @@ public class ServerLogic {
                 }
                 for (ActiveEvent activeEvent : activeEvents) {
                     Device device = activeEvent.getDevice();
-                    Point point = new Point(device.getId(),
-                            device.getNode().getId(),
-                            device.getName(),
-                            device.getAddress(),
-                            device.getDeviceType().getCode(),
-                            device.getMessage1(),
-                            device.getMessage2(),
-                            device.getPriority(),
-                            new TimeUTC(device.getCreatedOn()),
-                            new TimeUTC(device.getUpdatedOn()));
-                    response.getCurrentEvents().add(
-                            new CurrentEvent(activeEvent.getId(),
-                                    point,
-                                    new TimeUTC(activeEvent.getCreatedOn()),
-                                    new TimeUTC(activeEvent.getUpdatedOn())));
+                    Point point = internalCreatePoint(device);
+                    response.getCurrentEvents().add(internalCreateCurrentEvent(activeEvent, point));
                 }
                 break;
 
@@ -220,6 +226,70 @@ public class ServerLogic {
         return response;
     }
 
+    private Point internalCreatePoint(Device device) {
+        Point point = new Point();
+        point.setId(device.getId());
+        point.setNodeId(device.getNode().getId());
+        point.setName(device.getName());
+        point.setAddress(device.getAddress());
+        point.setDeviceTypeCode(device.getDeviceType().getCode());
+        point.setMessage1(device.getMessage1());
+        point.setMessage2(device.getMessage2());
+        point.setPriority(device.getPriority());
+        point.setCreatedOn(device.getCreatedOn());
+        point.setUpdatedOn(device.getUpdatedOn());
+        return point;
+    }
+
+    private CurrentEvent internalCreateCurrentEvent(ActiveEvent activeEvent, Point point) {
+        CurrentEvent currentEvent = new CurrentEvent();
+        currentEvent.setId(activeEvent.getId());
+        currentEvent.setPoint(point);
+        currentEvent.setCreatedOn(activeEvent.getCreatedOn());
+        currentEvent.setUpdatedOn(activeEvent.getUpdatedOn());
+        return currentEvent;
+    }
+
+    private OutputDevice internalCreateOutputDevice(hasoftware.server.data.OutputDevice outputDevice) {
+        OutputDevice od = new OutputDevice();
+        od.setName(outputDevice.getName());
+        od.setDescription(outputDevice.getDescription());
+        od.setAddress(outputDevice.getAddress());
+        od.setDeviceTypeCode(outputDevice.getDeviceType().getCode());
+        od.setSerialNumber(outputDevice.getSerialNumber());
+        od.setCreatedOn(outputDevice.getCreatedOn());
+        od.setUpdatedOn(outputDevice.getUpdatedOn());
+        return od;
+    }
+
+    private Location internalCreateLocation(Node node, int parentId) {
+        Location location = new Location();
+        location.setId(node.getId());
+        location.setParentId(parentId);
+        location.setName(node.getName());
+        location.setCreatedOn(node.getCreatedOn());
+        location.setUpdatedOn(node.getUpdatedOn());
+        return location;
+    }
+
+    private OutputMessage internalCreateOutputMessage(OutputEvent outputEvent) {
+        OutputMessage outputMessage = new OutputMessage();
+        outputMessage.setId(outputEvent.getId());
+        outputMessage.setDeviceTypeCode(outputEvent.getDeviceType().getCode());
+        outputMessage.setData(outputEvent.getData());
+        outputMessage.setCreatedOn(outputEvent.getCreatedOn());
+        return outputMessage;
+    }
+
+    private InputMessage internalCreateInputMessage(InputEvent inputEvent) {
+        InputMessage inputMessage = new InputMessage();
+        inputMessage.setId(inputEvent.getId());
+        inputMessage.setDeviceTypeCode(inputEvent.getDeviceType().getCode());
+        inputMessage.setData(inputEvent.getData());
+        inputMessage.setCreatedOn(inputEvent.getCreatedOn());
+        return inputMessage;
+    }
+
     private Message handlePointRequest(final IUserContext userContext, final PointRequest request)
             throws NotLoggedInException, PermissionException {
         logger.debug("[H:{} TN:{}] RECV handlePointRequest ({})", userContext.getTarget().getId(), request.getTransactionNumber(), CDEFAction.getActionStr(request.getAction()));
@@ -235,40 +305,14 @@ public class ServerLogic {
                     Node node = _dm.getNodeById(request.getNodeId());
                     List<Device> devices = _dm.getDeviceByNode(node);
                     for (Device device : devices) {
-                        response.getPoints().add(
-                                new Point(device.getId(),
-                                        device.getNode().getId(),
-                                        device.getName(),
-                                        device.getAddress(),
-                                        device.getDeviceType().getCode(),
-                                        device.getMessage1(),
-                                        device.getMessage2(),
-                                        device.getPriority(),
-                                        new TimeUTC(device.getCreatedOn()),
-                                        new TimeUTC(device.getUpdatedOn())));
+                        response.getPoints().add(internalCreatePoint(device));
                     }
                 } else {
                     List<Device> devices = _dm.getDeviceByAddress(request.getAddress());
                     for (Device device : devices) {
-                        Point point = new Point(device.getId(),
-                                device.getNode().getId(),
-                                device.getName(),
-                                device.getAddress(),
-                                device.getDeviceType().getCode(),
-                                device.getMessage1(),
-                                device.getMessage2(),
-                                device.getPriority(),
-                                new TimeUTC(device.getCreatedOn()),
-                                new TimeUTC(device.getUpdatedOn()));
+                        Point point = internalCreatePoint(device);
                         for (hasoftware.server.data.OutputDevice outputDevice : device.getOutputDevices()) {
-                            point.getOutputDevices().add(new OutputDevice(outputDevice.getId(),
-                                    outputDevice.getName(),
-                                    outputDevice.getDescription(),
-                                    outputDevice.getAddress(),
-                                    outputDevice.getDeviceType().getCode(),
-                                    outputDevice.getSerialNumber(),
-                                    new TimeUTC(outputDevice.getCreatedOn()),
-                                    new TimeUTC(outputDevice.getUpdatedOn())));
+                            point.getOutputDevices().add(internalCreateOutputDevice(outputDevice));
                         }
                         response.getPoints().add(point);
                     }
@@ -300,12 +344,7 @@ public class ServerLogic {
                 List<Node> nodes = _dm.getNodeByParent(parent);
                 for (Node node : nodes) {
                     int parentId = (node.getParent() == null) ? 0 : node.getParent().getId();
-                    response.getLocations().add(
-                            new Location(node.getId(),
-                                    parentId,
-                                    node.getName(),
-                                    new TimeUTC(node.getCreatedOn()),
-                                    new TimeUTC(node.getUpdatedOn())));
+                    response.getLocations().add(internalCreateLocation(node, parentId));
                 }
                 break;
         }
@@ -380,15 +419,7 @@ public class ServerLogic {
                     outputDevices = _dm.getOutputDevices(request.getIds());
                 }
                 for (hasoftware.server.data.OutputDevice outputDevice : outputDevices) {
-                    response.getOutputDevices().add(
-                            new OutputDevice(outputDevice.getId(),
-                                    outputDevice.getName(),
-                                    outputDevice.getDescription(),
-                                    outputDevice.getAddress(),
-                                    outputDevice.getDeviceType().getCode(),
-                                    outputDevice.getSerialNumber(),
-                                    new TimeUTC(outputDevice.getCreatedOn()),
-                                    new TimeUTC(outputDevice.getUpdatedOn())));
+                    response.getOutputDevices().add(internalCreateOutputDevice(outputDevice));
                 }
                 break;
 
@@ -448,11 +479,7 @@ public class ServerLogic {
                     outputEvents = _dm.getOutputEvents(request.getIds());
                 }
                 for (OutputEvent outputEvent : outputEvents) {
-                    response.getOutputMessages().add(
-                            new OutputMessage(outputEvent.getId(),
-                                    outputEvent.getDeviceType().getCode(),
-                                    outputEvent.getData(),
-                                    new TimeUTC(outputEvent.getCreatedOn())));
+                    response.getOutputMessages().add(internalCreateOutputMessage(outputEvent));
                 }
                 break;
 
@@ -512,11 +539,7 @@ public class ServerLogic {
                     inputEvents = _dm.getInputEvents(request.getIds());
                 }
                 for (InputEvent inputEvent : inputEvents) {
-                    response.getInputMessages().add(
-                            new InputMessage(inputEvent.getId(),
-                                    inputEvent.getDeviceType().getCode(),
-                                    inputEvent.getData(),
-                                    new TimeUTC(inputEvent.getCreatedOn())));
+                    response.getInputMessages().add(internalCreateInputMessage(inputEvent));
                 }
                 break;
 

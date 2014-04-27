@@ -34,19 +34,19 @@ namespace hasoftware.Cdef
             return PutU16(value, -1);
         }
 
-        public int PutU32(int value)
+        public int PutInt(int value)
         {
-            return PutU32(value, -1);
+            return PutInt(value, -1);
         }
 
-        public int PutS64(long value)
+        public int PutLong(long value)
         {
-            return PutS64(value, -1);
+            return PutLong(value, -1);
         }
 
-        public int PutAsciiL(String value)
+        public int PutString(String value)
         {
-            return PutAsciiL(value, -1);
+            return PutString(value, -1);
         }
 
         public int PutAsciiN(String value, int length)
@@ -69,19 +69,19 @@ namespace hasoftware.Cdef
             return GetU16(-1);
         }
 
-        public int GetU32()
+        public int GetInt()
         {
-            return GetU32(-1);
+            return GetInt(-1);
         }
 
-        public long GetS64()
+        public long GetLong()
         {
-            return GetS64(-1);
+            return GetLong(-1);
         }
 
-        public String GetAsciiL()
+        public String GetString()
         {
-            return GetAsciiL(-1);
+            return GetString(-1);
         }
 
         public String GetAsciiN(int length)
@@ -129,7 +129,7 @@ namespace hasoftware.Cdef
             return _index;
         }
 
-        public int PutU32(int value, int offset)
+        public int PutInt(int value, int offset)
         {
             if (offset > -1)
             {
@@ -145,7 +145,7 @@ namespace hasoftware.Cdef
             return _index;
         }
 
-        public int PutS64(long value, int offset)
+        public int PutLong(long value, int offset)
         {
             if (offset > -1)
             {
@@ -165,7 +165,7 @@ namespace hasoftware.Cdef
             return _index;
         }
 
-        public int PutAsciiL(String value, int offset)
+        public int PutString(String value, int offset)
         {
             if (offset > -1)
             {
@@ -252,7 +252,7 @@ namespace hasoftware.Cdef
             return result;
         }
 
-        public int GetU32(int offset)
+        public int GetInt(int offset)
         {
             int result = 0;
             if (offset > -1)
@@ -270,7 +270,7 @@ namespace hasoftware.Cdef
             return result;
         }
 
-        public long GetS64(int offset)
+        public long GetLong(int offset)
         {
             long result = 0;
             if (offset > -1)
@@ -292,16 +292,16 @@ namespace hasoftware.Cdef
             return result;
         }
 
-        public String GetAsciiL(int offset)
+        public string GetString(int offset)
         {
-            String result = null;
+            string result = null;
             if (offset > -1)
             {
                 _index = offset;
             }
             if (_index + 1 <= _length)
             {
-                int length = (int)_array[_index];
+                var length = (int)_array[_index];
                 if (_index + 1 + length <= _length)
                 {
                     result = Encoding.ASCII.GetString(_array, _index + 1, length);

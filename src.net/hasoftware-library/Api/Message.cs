@@ -1,11 +1,7 @@
-﻿using hasoftware.Cdef;
+﻿using System;
+using hasoftware.Cdef;
 using hasoftware.Messages;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading;
-using System.Threading.Tasks;
 
 namespace hasoftware.Api
 {
@@ -17,11 +13,11 @@ namespace hasoftware.Api
         public int TransactionNumber { get; set; }
         public int SystemFlags { get; set; }
 
-        protected Message(int functionCode, int systemFlags)
+        protected Message()
         {
-            FunctionCode = functionCode;
+            FunctionCode = CdefFunctionCode.None;
             TransactionNumber = Interlocked.Increment(ref NextTransactionNumber);
-            SystemFlags = systemFlags;
+            SystemFlags = 0;
         }
 
         protected Message(int functionCode, int transactionNumber, int systemFlags)
@@ -33,17 +29,24 @@ namespace hasoftware.Api
 
         protected Message(CdefMessage cdefMessage)
         {
-            FunctionCode = cdefMessage.GetU16(0);
-            TransactionNumber = cdefMessage.GetU32();
-            SystemFlags = cdefMessage.GetU8();
+            FunctionCode = cdefMessage.GetInt(0);
+            TransactionNumber = cdefMessage.GetInt();
+            SystemFlags = cdefMessage.GetInt();
+        }
+
+        protected void Decode(CdefMessage cdefMessage)
+        {
+            FunctionCode = cdefMessage.GetInt(0);
+            TransactionNumber = cdefMessage.GetInt();
+            SystemFlags = cdefMessage.GetInt();
         }
 
         public virtual void Encode(CdefMessage cdefMessage)
         {
             cdefMessage.Clear();
-            cdefMessage.PutU16(FunctionCode);
-            cdefMessage.PutU32(TransactionNumber);
-            cdefMessage.PutU8(SystemFlags);
+            cdefMessage.PutInt(FunctionCode);
+            cdefMessage.PutInt(TransactionNumber);
+            cdefMessage.PutInt(SystemFlags);
         }
 
         public bool IsRequest
@@ -63,7 +66,7 @@ namespace hasoftware.Api
 
         public ErrorResponse CreateErrorResponse()
         {
-            return new ErrorResponse(FunctionCode, TransactionNumber);
+            return new ErrorResponse(TransactionNumber) { FunctionCode = FunctionCode };
         }
     }
 }

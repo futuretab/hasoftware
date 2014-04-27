@@ -45,7 +45,6 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Api\AnError.cs" />
     <Compile Include="Api\DeviceType.cs" />
     <Compile Include="Api\ErrorCode.cs" />
     <Compile Include="Api\FunctionCode.cs" />
@@ -60,12 +59,16 @@
     <Compile Include="Cdef\CdefMessage.cs" />
     <Compile Include="Cdef\CdefSystemFlags.cs" />
     <Compile Include="Classes\CurrentEvent.cs" />
+    <Compile Include="Classes\DeviceType.cs" />
+    <Compile Include="Classes\ErrorMessage.cs" />
     <Compile Include="Classes\InputMessage.cs" />
     <Compile Include="Classes\Location.cs" />
     <Compile Include="Classes\OutputDevice.cs" />
     <Compile Include="Classes\OutputMessage.cs" />
     <Compile Include="Classes\Point.cs" />
-    <Compile Include="Classes\TimeUTC.cs" />
+    <Compile Include="Messages\HeartbeatRequest.cs" />
+    <Compile Include="Messages\HeartbeatResponse.cs" />
+    <Compile Include="Util\TimeUTC.cs" />
     <Compile Include="Configuration\XmlBuffer.cs" />
     <Compile Include="Configuration\XmlConfiguration.cs" />
     <Compile Include="Configuration\XmlSettings.cs" />

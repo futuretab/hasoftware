@@ -126,7 +126,7 @@ public class CurrentEventsController extends AbstractSceneController {
 
             name.setText("ID:" + currentEvent.getId() + " PointID:" + currentEvent.getPoint().getId());
 
-            long millis = System.currentTimeMillis() - currentEvent.getCreatedOn().getTimeUTC();
+            long millis = System.currentTimeMillis() - currentEvent.getCreatedOn();
             long hours = TimeUnit.MILLISECONDS.toHours(millis);
             long minutes = TimeUnit.MILLISECONDS.toMinutes(millis) - TimeUnit.HOURS.toMinutes(TimeUnit.MILLISECONDS.toHours(millis));
             long seconds = TimeUnit.MILLISECONDS.toSeconds(millis) - TimeUnit.MINUTES.toSeconds(TimeUnit.MILLISECONDS.toMinutes(millis));

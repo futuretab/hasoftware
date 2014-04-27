@@ -2,7 +2,6 @@ package hasoftware.api;
 
 import hasoftware.api.classes.CurrentEvent;
 import hasoftware.api.classes.Point;
-import hasoftware.api.classes.TimeUTC;
 import hasoftware.api.messages.CurrentEventResponse;
 import hasoftware.api.messages.LoginRequest;
 import hasoftware.api.messages.NotifyRequest;
@@ -42,8 +41,24 @@ public class MessageFactoryTest {
         {
             CurrentEventResponse currentEventResponse = new CurrentEventResponse(99);
             currentEventResponse.setAction(CDEFAction.List);
-            Point point = new Point(1000, 0, "Point", "1.101", "CODE", "Point Message 1", "Point Message 2", 0, new TimeUTC(123456), new TimeUTC(123456));
-            CurrentEvent currentEvent = new CurrentEvent(100, point, new TimeUTC(123456), new TimeUTC(123456));
+            Point point = new Point();
+            point.setId(1000);
+            point.setNodeId(0);
+            point.setName("Point");
+            point.setAddress("1.101");
+            point.setDeviceTypeCode("CODE");
+            point.setMessage1("Point Message 1");
+            point.setMessage2("Point Message 2");
+            point.setPriority(0);
+            point.setCreatedOn(123456);
+            point.setUpdatedOn(123456);
+
+            CurrentEvent currentEvent = new CurrentEvent();
+            currentEvent.setId(100);
+            currentEvent.setPoint(point);
+            currentEvent.setCreatedOn(123456);
+            currentEvent.setUpdatedOn(123456);
+
             currentEventResponse.getCurrentEvents().add(currentEvent);
 
             String json = JSONMessageFactory.encode(currentEventResponse);

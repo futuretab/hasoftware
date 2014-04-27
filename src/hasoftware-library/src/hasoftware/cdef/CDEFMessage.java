@@ -24,16 +24,16 @@ public class CDEFMessage extends MemArray {
         return putU16(value, -1);
     }
 
-    public int putU32(int value) {
-        return putU32(value, -1);
+    public int putInt(int value) {
+        return putInt(value, -1);
     }
 
-    public int putS64(long value) {
-        return putS64(value, -1);
+    public int putLong(long value) {
+        return putLong(value, -1);
     }
 
-    public int putAsciiL(String value) {
-        return putAsciiL(value, -1);
+    public int putString(String value) {
+        return putString(value, -1);
     }
 
     public int putAsciiN(String value, int length) {
@@ -52,16 +52,16 @@ public class CDEFMessage extends MemArray {
         return getU16(-1);
     }
 
-    public int getU32() {
-        return getU32(-1);
+    public int getInt() {
+        return getInt(-1);
     }
 
-    public long getS64() {
-        return getS64(-1);
+    public long getLong() {
+        return getLong(-1);
     }
 
-    public String getAsciiL() {
-        return getAsciiL(-1);
+    public String getString() {
+        return getString(-1);
     }
 
     public String getAsciiN(int length) {
@@ -102,7 +102,7 @@ public class CDEFMessage extends MemArray {
         return _index;
     }
 
-    public int putU32(int value, int offset) {
+    public int putInt(int value, int offset) {
         if (offset > -1) {
             _index = offset;
         }
@@ -116,7 +116,7 @@ public class CDEFMessage extends MemArray {
         return _index;
     }
 
-    public int putS64(long value, int offset) {
+    public int putLong(long value, int offset) {
         if (offset > -1) {
             _index = offset;
         }
@@ -134,7 +134,7 @@ public class CDEFMessage extends MemArray {
         return _index;
     }
 
-    public int putAsciiL(String value, int offset) {
+    public int putString(String value, int offset) {
         if (offset > -1) {
             _index = offset;
         }
@@ -203,7 +203,7 @@ public class CDEFMessage extends MemArray {
         return result;
     }
 
-    public int getU32(int offset) {
+    public int getInt(int offset) {
         int result = 0;
         if (offset > -1) {
             _index = offset;
@@ -218,7 +218,7 @@ public class CDEFMessage extends MemArray {
         return result;
     }
 
-    public long getS64(int offset) {
+    public long getLong(int offset) {
         long result = 0;
         if (offset > -1) {
             _index = offset;
@@ -237,7 +237,7 @@ public class CDEFMessage extends MemArray {
         return result;
     }
 
-    public String getAsciiL(int offset) {
+    public String getString(int offset) {
         String result = null;
         if (offset > -1) {
             _index = offset;

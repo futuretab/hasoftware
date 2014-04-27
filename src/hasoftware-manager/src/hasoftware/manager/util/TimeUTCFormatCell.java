@@ -1,6 +1,6 @@
 package hasoftware.manager.util;
 
-import hasoftware.api.classes.TimeUTC;
+import hasoftware.util.TimeUTC;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import javafx.scene.control.TableCell;

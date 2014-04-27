@@ -91,7 +91,7 @@ public class LoginController extends AbstractSceneController {
                 if (message.getFunctionCode() == FunctionCode.Login
                         && message.getTransactionNumber() == loginTransactionNumber) {
                     if (message.isError()) {
-                        final String errorMessage = ((ErrorResponse) message).getErrors().get(0).getMessage();
+                        final String errorMessage = ((ErrorResponse) message).getErrorMessages().get(0).getMessage();
                         Platform.runLater(() -> {
                             error.setText(errorMessage);
                             login.setDisable(false);

@@ -66,7 +66,7 @@ public class Notifications {
      * @param ids
      */
     public static void notify(int functionCode, int action, List<Integer> ids) {
-        NotifyResponse message = new NotifyResponse();
+        NotifyResponse message = new NotifyResponse(0);
         message.setNotifyFunctionCode(functionCode);
         message.setAction(action);
         message.getIds().addAll(ids);

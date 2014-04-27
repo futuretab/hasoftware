@@ -14,6 +14,7 @@ import hasoftware.util.EventType;
 import hasoftware.util.IEventCreator;
 import hasoftware.util.IEventHandler;
 import hasoftware.util.OutstandingRequest;
+import hasoftware.util.TimeUTC;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.LinkedBlockingQueue;
@@ -91,9 +92,19 @@ public class LocalModel implements IEventCreator, IEventHandler {
             throw new IllegalArgumentException("point can not be null");
         }
         // Should really add it to _currentEvents in some eager caching fashion?
-        CurrentEventRequest currentEventRequest = new CurrentEventRequest(CDEFAction.Create);
-        currentEventRequest.getCurrentEvents().add(new CurrentEvent(0, point, null, null));
+        CurrentEventRequest currentEventRequest = new CurrentEventRequest();
+        currentEventRequest.setAction(CDEFAction.Create);
+        currentEventRequest.getCurrentEvents().add(internalCreateCurrentEvent(point));
         _eventQueue.add(new Event(EventType.SendMessage, currentEventRequest));
+    }
+
+    private CurrentEvent internalCreateCurrentEvent(Point point) {
+        CurrentEvent currentEvent = new CurrentEvent();
+        currentEvent.setId(0);
+        currentEvent.setPoint(point);
+        currentEvent.setCreatedOn(TimeUTC.Null);
+        currentEvent.setUpdatedOn(TimeUTC.Null);
+        return currentEvent;
     }
 
     public void deleteCurrentEvent(CurrentEvent currentEvent) {
@@ -101,21 +112,24 @@ public class LocalModel implements IEventCreator, IEventHandler {
             throw new IllegalArgumentException("currentEvent can not be null");
         }
         // Should really delete it from _currentEvents in some eager caching fashion?
-        CurrentEventRequest currentEventRequest = new CurrentEventRequest(CDEFAction.Delete);
+        CurrentEventRequest currentEventRequest = new CurrentEventRequest();
+        currentEventRequest.setAction(CDEFAction.Delete);
         currentEventRequest.getIds().add(currentEvent.getId());
         _eventQueue.add(new Event(EventType.SendMessage, currentEventRequest));
     }
 
     public void onShown() {
         {
-            OutputDeviceRequest request = new OutputDeviceRequest(CDEFAction.List);
+            OutputDeviceRequest request = new OutputDeviceRequest();
+            request.setAction(CDEFAction.List);
             _requests.add(new OutstandingRequest<>(request.getTransactionNumber(), 0));
             Event event = new Event(EventType.SendMessage, request);
             _eventQueue.add(event);
         }
 
         {
-            CurrentEventRequest request = new CurrentEventRequest(CDEFAction.List);
+            CurrentEventRequest request = new CurrentEventRequest();
+            request.setAction(CDEFAction.List);
             _requests.add(new OutstandingRequest<>(request.getTransactionNumber(), 0));
             Event event = new Event(EventType.SendMessage, request);
             _eventQueue.add(event);
@@ -159,7 +173,8 @@ public class LocalModel implements IEventCreator, IEventHandler {
         switch (action) {
             case CDEFAction.Create:
             case CDEFAction.Update:
-                CurrentEventRequest request = new CurrentEventRequest(CDEFAction.List);
+                CurrentEventRequest request = new CurrentEventRequest();
+                request.setAction(CDEFAction.List);
                 request.getIds().addAll(ids);
                 _requests.add(new OutstandingRequest<>(request.getTransactionNumber(), 1));
                 _eventQueue.add(new Event(EventType.SendMessage, request));
@@ -184,7 +199,8 @@ public class LocalModel implements IEventCreator, IEventHandler {
         switch (action) {
             case CDEFAction.Create:
             case CDEFAction.Update:
-                OutputDeviceRequest request = new OutputDeviceRequest(CDEFAction.List);
+                OutputDeviceRequest request = new OutputDeviceRequest();
+                request.setAction(CDEFAction.List);
                 request.getIds().addAll(ids);
                 _requests.add(new OutstandingRequest<>(request.getTransactionNumber(), 1));
                 _eventQueue.add(new Event(EventType.SendMessage, request));

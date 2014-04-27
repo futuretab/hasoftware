@@ -7,17 +7,12 @@ using System.Threading.Tasks;
 
 namespace hasoftware.Cdef
 {
-    public enum CdefAction
+    public class CdefAction
     {
-        [Description("None")]
-        None = 0,
-        [Description("Create")]
-        Create = 1,
-        [Description("Delete")]
-        Delete = 2,
-        [Description("List")]
-        List = 3,
-        [Description("Update")]
-        Update = 4
+        public const int None = 0;
+        public const int Create = 1;
+        public const int Delete = 2;
+        public const int List = 3;
+        public const int Update = 4;
     }
 }

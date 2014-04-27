@@ -40,16 +40,16 @@ public abstract class Message {
     }
 
     protected Message(CDEFMessage cdefMessage) {
-        _functionCode = cdefMessage.getU16(0);
-        _transactionNumber = cdefMessage.getU32();
-        _systemFlags = cdefMessage.getU8();
+        _functionCode = cdefMessage.getInt(0);
+        _transactionNumber = cdefMessage.getInt();
+        _systemFlags = cdefMessage.getInt();
     }
 
     public void encode(CDEFMessage cdefMessage) {
         cdefMessage.clear();
-        cdefMessage.putU16(_functionCode);
-        cdefMessage.putU32(_transactionNumber);
-        cdefMessage.putU8(_systemFlags);
+        cdefMessage.putInt(_functionCode);
+        cdefMessage.putInt(_transactionNumber);
+        cdefMessage.putInt(_systemFlags);
     }
 
     public int getFunctionCode() {
@@ -92,6 +92,8 @@ public abstract class Message {
     }
 
     public ErrorResponse createErrorResponse() {
-        return new ErrorResponse(_functionCode, _transactionNumber);
+        ErrorResponse errorResponse = new ErrorResponse(_transactionNumber);
+        errorResponse.setFunctionCode(_functionCode);
+        return errorResponse;
     }
 }

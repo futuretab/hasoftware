@@ -418,7 +418,7 @@ namespace hasoftware_current_calls.Forms
             if (message.IsError)
             {
                 var r = (ErrorResponse)message;
-                foreach (var error in r.Errors)
+                foreach (var error in r.ErrorMessages)
                 {
                     logger.Error("CurrentEventResponse: {0}", error.Message);
                 }
@@ -463,7 +463,7 @@ namespace hasoftware_current_calls.Forms
             {
                 _status = "Login Error";
                 var r = (ErrorResponse)message;
-                foreach (var error in r.Errors)
+                foreach (var error in r.ErrorMessages)
                 {
                     logger.Error("LoginResponse: {0}", error.Message);
                 }
@@ -705,7 +705,7 @@ namespace hasoftware_current_calls.Forms
             var elapsedTime = "";
             if (format.Contains(FormatElapsedTime))
             {
-                int seconds = (int)((now - currentEvent.CreatedOn.Time) / 1000);
+                int seconds = (int)((now - currentEvent.CreatedOn) / 1000);
                 var span = new TimeSpan(0, 0, seconds);
                 if (span.Hours == 0)
                 {

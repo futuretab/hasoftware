@@ -110,7 +110,8 @@ public class SiteController extends AbstractSceneController {
     @Override
     public void onShown() {
         treeSite.setRoot(null);
-        LocationRequest message = new LocationRequest(CDEFAction.List);
+        LocationRequest message = new LocationRequest();
+        message.setAction(CDEFAction.List);
         message.setParentId(0);
         Event event = new Event(EventType.SendMessage, message);
         _requests.add(new OutstandingRequest(message.getTransactionNumber(), null));
@@ -179,16 +180,16 @@ public class SiteController extends AbstractSceneController {
                 textAddress.setText("");
                 textMessage1.setText("");
                 textMessage2.setText("");
-                labelCreatedOn.setText(dateFormat.format(new Date(location.getCreatedOn().getTimeUTC())));
-                labelUpdatedOn.setText(dateFormat.format(new Date(location.getUpdatedOn().getTimeUTC())));
+                labelCreatedOn.setText(dateFormat.format(new Date(location.getCreatedOn())));
+                labelUpdatedOn.setText(dateFormat.format(new Date(location.getUpdatedOn())));
             } else {
                 Point point = locationPoint.getPoint();
                 textName.setText(point.getName());
                 textAddress.setText(point.getAddress());
                 textMessage1.setText(point.getMessage1());
                 textMessage2.setText(point.getMessage2());
-                labelCreatedOn.setText(dateFormat.format(new Date(point.getCreatedOn().getTimeUTC())));
-                labelUpdatedOn.setText(dateFormat.format(new Date(point.getUpdatedOn().getTimeUTC())));
+                labelCreatedOn.setText(dateFormat.format(new Date(point.getCreatedOn())));
+                labelUpdatedOn.setText(dateFormat.format(new Date(point.getUpdatedOn())));
             }
         }
     }
@@ -230,7 +231,8 @@ public class SiteController extends AbstractSceneController {
             if (locationPoint.isLocation()) {
                 // Ask for all the child locations
                 {
-                    LocationRequest message = new LocationRequest(CDEFAction.List);
+                    LocationRequest message = new LocationRequest();
+                    message.setAction(CDEFAction.List);
                     message.setParentId(locationPoint.getLocation().getId());
                     Event event = new Event(EventType.SendMessage, message);
                     _requests.add(new OutstandingRequest(message.getTransactionNumber(), this));
@@ -238,7 +240,8 @@ public class SiteController extends AbstractSceneController {
                 }
                 // Ask for all the child points
                 {
-                    PointRequest message = new PointRequest(CDEFAction.List);
+                    PointRequest message = new PointRequest();
+                    message.setAction(CDEFAction.List);
                     message.setNodeId(locationPoint.getLocation().getId());
                     Event event = new Event(EventType.SendMessage, message);
                     _requests.add(new OutstandingRequest(message.getTransactionNumber(), this));
