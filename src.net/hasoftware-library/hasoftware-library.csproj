@@ -33,8 +33,9 @@
     <Reference Include="AltarNet3">
       <HintPath>..\packages\AltarNet3.3.2.4.0\lib\net45\AltarNet3.dll</HintPath>
     </Reference>
-    <Reference Include="NLog">
-      <HintPath>..\packages\NLog.2.1.0\lib\net45\NLog.dll</HintPath>
+    <Reference Include="NLog, Version=3.2.0.0, Culture=neutral, PublicKeyToken=5120e14c03d0593c, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\packages\NLog.3.2.0.0\lib\net45\NLog.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
@@ -68,6 +69,7 @@
     <Compile Include="Classes\Point.cs" />
     <Compile Include="Messages\HeartbeatRequest.cs" />
     <Compile Include="Messages\HeartbeatResponse.cs" />
+    <Compile Include="Util\Serial.cs" />
     <Compile Include="Util\TimeUTC.cs" />
     <Compile Include="Configuration\XmlBuffer.cs" />
     <Compile Include="Configuration\XmlConfiguration.cs" />
@@ -99,6 +101,7 @@
     <Compile Include="Util\IEventHandler.cs" />
     <Compile Include="Util\MemArray.cs" />
     <Compile Include="Util\OutstandingRequest.cs" />
+    <Compile Include="Util\Utils.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

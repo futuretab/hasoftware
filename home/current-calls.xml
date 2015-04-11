@@ -8,22 +8,19 @@
     <labels>
       <label0 type="static" x="8"   y="8"   width="400" height="35" format="Information Display" font-name="Corbel" fore-color="White" align="left"  />
       <label1 type="time"   x="624" y="720" width="400" height="35" format="dddd d MMMM HH:mm"   font-name="Corbel" fore-color="White" align="right" />
-      <label2 type="static" x="516" y="40"  width="400" height="35" format="Outside Temperature" fore-color="White" align="right" />
-      <label3 type="static" x="516" y="75"  width="400" height="35" format="Pool Temperature"    fore-color="White" align="right" />
-      <label4 type="static" x="516" y="110" width="400" height="35" format="Light"               fore-color="White" align="right" />
-      <label5 type="static" x="516" y="145" width="400" height="35" format="Battery Voltage"     fore-color="White" align="right" />
+      <label2 type="static" x="566" y="40"  width="350" height="35" format="Outside Temperature" fore-color="White" align="right" />
+      <label3 type="static" x="566" y="75"  width="350" height="35" format="Pool Temperature"    fore-color="White" align="right" />
+      <label4 type="static" x="566" y="110" width="350" height="35" format="Light"               fore-color="White" align="right" />
+      <label5 type="static" x="566" y="145" width="350" height="35" format="Battery Voltage"     fore-color="White" align="right" />
       <label6 type="file" x="920" y="40"  width="90" height="35" filename="S:\Temp\rrdtest\outside.html" refresh="60" fore-color="White" />
       <label7 type="file" x="920" y="75"  width="90" height="35" filename="S:\Temp\rrdtest\pool.html"    refresh="60" fore-color="White" />
       <label8 type="file" x="920" y="110" width="90" height="35" filename="S:\Temp\rrdtest\light.html"   refresh="60" fore-color="White" />
       <label9 type="file" x="920" y="145" width="90" height="35" filename="S:\Temp\rrdtest\battery.html" refresh="60" fore-color="White" />
-      <!--
-      <heading10 type="status" x="8" y="730" width="300" height="35" format="" fore-color="White" align="left" />
-      -->
     </labels>
-    <rows y="40" count="18" height="35" offset="36">
-      <column0 name="Priority" offset="8"   width="42"  format="$P"  align="center" font-name="Lucida Sans" />
-      <column1 name="Message"  offset="50"  width="300" format="$M1" align="left"   font-name="Lucida Sans" />
-      <column2 name="Elapsed"  offset="350" width="150" format="$E"  align="right"  font-name="Lucida Sans" />
+    <rows y="45" count="18" height="35" offset="36">
+      <column0 name="Priority" offset="8"   width="65"  format="$P"  align="center" font-name="Lucida Sans" />
+      <column1 name="Message"  offset="73"  width="300" format="$M1" align="left"   font-name="Lucida Sans" />
+      <column2 name="Elapsed"  offset="373" width="150" format="$E"  align="right"  font-name="Lucida Sans" />
     </rows>
     <priorities>
       <priority0  configuration=" 0| DB |DOORBELL |Yellow |Black      |Black  |false |0"  sound="sounds/doorbell.wav" />
@@ -39,7 +36,9 @@
       <priority10 configuration="10| AC |ACTIVITY |Red    |White      |White  |false |0"  sound=""                  />
     </priorities>
     <comms>
-      <stream0 host="localhost" port="6969" />
+      <!--<stream type="cdef" host="localhost" port="6969" />-->
+      <!--<stream type="tap" display-id="5555" />-->
+      <stream type="zmq" subscribe-to="tcp://192.168.156.121:5555" topics="ALARMS" />
     </comms>
   </configuration>
 </root>

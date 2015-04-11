@@ -53,6 +53,7 @@
     <Compile Include="forms\MainForm.Designer.cs">
       <DependentUpon>MainForm.cs</DependentUpon>
     </Compile>
+    <Compile Include="handlers\CppCodeHandler.cs" />
     <Compile Include="handlers\HandlerSupport.cs" />
     <Compile Include="handlers\IHandler.cs" />
     <Compile Include="handlers\JavaCodeHandler.cs" />

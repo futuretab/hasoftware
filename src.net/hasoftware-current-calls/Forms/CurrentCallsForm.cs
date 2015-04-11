@@ -4,19 +4,18 @@ using hasoftware.Classes;
 using hasoftware.Configuration;
 using hasoftware.Messages;
 using hasoftware.Util;
+using hasoftware_current_calls.Streams;
 using hasoftware_current_calls.Util;
 using NLog;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.ComponentModel;
-using System.Data;
 using System.Drawing;
 using System.IO;
 using System.Linq;
 using System.Media;
 using System.Runtime.InteropServices;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
@@ -25,26 +24,26 @@ namespace hasoftware_current_calls.Forms
 {
     public partial class CurrentCallsForm : Form
     {
-        private static Logger logger = LogManager.GetCurrentClassLogger();
+        private static readonly Logger Logger = LogManager.GetCurrentClassLogger();
 
         private const string XmlConfigurationFile = "current-calls.xml";
         private const int TimeCheckPeriod = 1000;
         private const string FormatElapsedTime = "$E";
 
         private XmlConfiguration _xmlConfiguration;
-        private SoundPlayer _soundPlayer;
+        private readonly SoundPlayer _soundPlayer;
         private string _fontName;
         private float _fontSize;
         private Font _font;
         private List<HeadingConfiguration> _headings;
-        private CdefClient _client;
-        private ConcurrentQueue<Event> _eventQueue;
-        private Event _timeCheckEvent;
+        private IMessageStream _messageStream;
+        private readonly ConcurrentQueue<Event> _eventQueue;
+        private readonly Event _timeCheckEvent;
         private string _status;
         private int _rowCount;
         private List<ColumnConfiguration> _columns;
-        private List<CurrentEventData> _currentEvents;
-        private CurrentEventDataSorter _currentEventDataSorter;
+        private readonly List<CurrentEventData> _currentEvents;
+        private readonly CurrentEventDataSorter _currentEventDataSorter;
         private DateTime _currentEventsUpdatedTime;
         private DateTime _currentEventsDisplayedTime;
         private bool _newCurrentEventDisplayedFlag;
@@ -57,6 +56,7 @@ namespace hasoftware_current_calls.Forms
         private int _soundTimer;
         private Stream _soundStream;
         private uint _soundVolume;
+        private Task _task;
 
         public CurrentCallsForm()
         {
@@ -80,7 +80,7 @@ namespace hasoftware_current_calls.Forms
 
         private void LoadSettings()
         {
-            logger.Debug("-- LOAD SETTINGS START --");
+            Logger.Debug("-- LOAD SETTINGS START --");
             SuspendLayout();
             _xmlConfiguration = new XmlConfiguration();
             if (!_xmlConfiguration.Load(XmlConfigurationFile))
@@ -90,40 +90,34 @@ namespace hasoftware_current_calls.Forms
             Options.Load(_xmlConfiguration);
             using (_xmlConfiguration.XmlBuffer)
             {
-                logger.Debug("-- LOAD COMMS SETTINGS --");
+                Logger.Debug("-- LOAD COMMS SETTINGS --");
                 {
-                    var settings = _xmlConfiguration.GetSettings("configuration/comms/stream0");
-                    if (settings != null)
+                    _messageStream = MessageStreamFactory.Create(_xmlConfiguration.GetSettings("configuration/comms/stream"));
+                    if (_messageStream != null)
                     {
-                        var host = settings.GetString("host", "localhost");
-                        var port = settings.GetInt("port", 6969);
-                        _client = new CdefClient(host, port);
-                        _client.SetEventQueue(_eventQueue);
-                        _client.StartUp();
-                        _status = "Connecting ...";
-                        logger.Debug("SERVER [{0}:{1}]", host, port);
+                        _messageStream.SetEventQueue(_eventQueue);
                     }
                     else
                     {
-                        _status = "No coms stream defined!";
+                        _status = "Unable to create comms stream!";
                     }
                 }
 
-                logger.Debug("-- LOAD FONT SETTINGS --");
+                Logger.Debug("-- LOAD FONT SETTINGS --");
                 {
                     var settings = _xmlConfiguration.GetSettings("configuration/display/font");
                     _fontName = settings.GetString("name", "Tahoma");
                     _fontSize = settings.GetFloat("size", 28);
                     _font = new Font(_fontName, _fontSize);
-                    logger.Debug("DEFAULT FONT [{0} {1}]", _fontName, _fontSize);
+                    Logger.Debug("DEFAULT FONT [{0} {1}]", _fontName, _fontSize);
                 }
 
-                logger.Debug("-- LOAD DISPLAY SETTINGS --");
+                Logger.Debug("-- LOAD DISPLAY SETTINGS --");
                 {
                     var screenCount = 0;
                     foreach (var screen in Screen.AllScreens)
                     {
-                        logger.Debug(string.Format("[{0}] [{1}x{2}]@{3} {4}", screenCount++, screen.Bounds.Width, screen.Bounds.Height, screen.BitsPerPixel, screen.Primary));
+                        Logger.Debug(string.Format("[{0}] [{1}x{2}]@{3} {4}", screenCount++, screen.Bounds.Width, screen.Bounds.Height, screen.BitsPerPixel, screen.Primary));
                     }
                     var settings = _xmlConfiguration.GetSettings("configuration/display");
                     var tempStr = settings.GetString("mode", "fullscreen").ToUpper();
@@ -139,7 +133,7 @@ namespace hasoftware_current_calls.Forms
                         FormBorderStyle = FormBorderStyle.None;
                         ClientSize = new Size(screen.Bounds.Width, screen.Bounds.Height);
                         Cursor.Hide();
-                        logger.Debug("FULLSCREEN MODE ON SCREEN {0}", tempInt);
+                        Logger.Debug("FULLSCREEN MODE ON SCREEN {0}", tempInt);
                     }
                     else
                     {
@@ -148,28 +142,28 @@ namespace hasoftware_current_calls.Forms
                         ClientSize = new Size(width, height);
                         FormBorderStyle = FormBorderStyle.FixedSingle;
                         MaximizeBox = false;
-                        logger.Debug("WINDOW MODE");
+                        Logger.Debug("WINDOW MODE");
                     }
                 }
 
-                logger.Debug("-- LOAD BACKGROUND IMAGE --");
+                Logger.Debug("-- LOAD BACKGROUND IMAGE --");
                 {
                     var settings = _xmlConfiguration.GetSettings("configuration/display/background");
                     var filename = settings.GetString("filename", null);
                     if (!string.IsNullOrEmpty(filename) && File.Exists(filename))
                     {
                         BackgroundImage = Image.FromFile(filename);
-                        logger.Debug("USING IMAGE [{0}]", filename);
+                        Logger.Debug("USING IMAGE [{0}]", filename);
                     }
                     else
                     {
                         var color = settings.GetString("back-color", "White");
                         BackColor = Color.FromName(color);
-                        logger.Debug("USING COLOR [{0}]", color);
+                        Logger.Debug("USING COLOR [{0}]", color);
                     }
                 }
 
-                logger.Debug("-- LOAD LABEL SETTINGS --");
+                Logger.Debug("-- LOAD LABEL SETTINGS --");
                 {
                     _headings = new List<HeadingConfiguration>();
                     var headingIndex = 0;
@@ -218,7 +212,7 @@ namespace hasoftware_current_calls.Forms
                     }
                 }
 
-                logger.Debug("-- LOAD PRIORITIES --");
+                Logger.Debug("-- LOAD PRIORITIES --");
                 {
                     _priorities = new List<PriorityData>();
                     var priorityIndex = 0;
@@ -248,7 +242,7 @@ namespace hasoftware_current_calls.Forms
                     }
                 }
 
-                logger.Debug("-- LOAD ROWS AND COLUMNS --");
+                Logger.Debug("-- LOAD ROWS AND COLUMNS --");
                 {
                     _columns = new List<ColumnConfiguration>();
                     var settings = _xmlConfiguration.GetSettings("configuration/rows");
@@ -307,17 +301,21 @@ namespace hasoftware_current_calls.Forms
                 }
             }
             ResumeLayout();
-            Task.Run(() =>
+            _task = Task.Run(() =>
             {
                 PassEvents();
             });
             _timer.Start();
-            logger.Debug("-- LOAD SETTINGS STOP --");
+            Logger.Debug("-- LOAD SETTINGS STOP --");
         }
 
         private void PassEvents() {
             long lastTimeCheck = 0;
 
+            if (_messageStream != null)
+            {
+                _messageStream.StartUp();
+            }
             while (true) {
                 Event e = null;
                 var suceess = _eventQueue.TryDequeue(out e);
@@ -342,9 +340,15 @@ namespace hasoftware_current_calls.Forms
                         case EventType.ReceiveMessage:
                             switch (e.Message.FunctionCode)
                             {
-                                case FunctionCode.Login: HandleLoginResponse(e.Message); break;
-                                case FunctionCode.Notify: HandleNotifyResponse(e.Message); break;
-                                case FunctionCode.CurrentEvent: HandleCurrentEventResponse(e.Message); break;
+                                case FunctionCode.Login:
+                                    HandleLoginResponse(e.Message);
+                                    break;
+                                case FunctionCode.Notify:
+                                    HandleNotifyResponse(e.Message);
+                                    break;
+                                case FunctionCode.CurrentEvent:
+                                    HandleCurrentEventResponse(e.Message);
+                                    break;
                             }
                             break;
                     }
@@ -371,7 +375,7 @@ namespace hasoftware_current_calls.Forms
                         // Do we already have this current event?
                         if (ce.CurrentEvent.Id == currentEvent.Id) return;
                     }
-                    logger.Debug("ADD CurrentEvent [{0}:{1}]", currentEvent.Id, currentEvent.Point.Id);
+                    Logger.Debug("ADD CurrentEvent [{0}:{1}]", currentEvent.Id, currentEvent.Point.Id);
                     var currentEventData = new CurrentEventData
                     {
                         NewFlag = true,
@@ -404,7 +408,7 @@ namespace hasoftware_current_calls.Forms
                 {
                     if (ce.CurrentEvent.Id == id)
                     {
-                        logger.Debug("REMOVE CurrenEvent [{0}:{1}]", ce.CurrentEvent.Id, ce.CurrentEvent.Point.Id);
+                        Logger.Debug("REMOVE CurrenEvent [{0}:{1}]", ce.CurrentEvent.Id, ce.CurrentEvent.Point.Id);
                         _currentEvents.Remove(ce);
                         break;
                     }
@@ -420,7 +424,7 @@ namespace hasoftware_current_calls.Forms
                 var r = (ErrorResponse)message;
                 foreach (var error in r.ErrorMessages)
                 {
-                    logger.Error("CurrentEventResponse: {0}", error.Message);
+                    Logger.Error("CurrentEventResponse: {0}", error.Message);
                 }
             }
             else
@@ -465,7 +469,7 @@ namespace hasoftware_current_calls.Forms
                 var r = (ErrorResponse)message;
                 foreach (var error in r.ErrorMessages)
                 {
-                    logger.Error("LoginResponse: {0}", error.Message);
+                    Logger.Error("LoginResponse: {0}", error.Message);
                 }
             }
             else
@@ -482,19 +486,23 @@ namespace hasoftware_current_calls.Forms
 
         private void SendEvent(Event e) {
             if (e.Type != EventType.TimeCheck) {
-                logger.Debug("SendEvent [{} @{}]", e.Type, e.Time / 1000);
+                Logger.Debug("SendEvent [{0} @{1}]", e.Type, e.Time / 1000);
             }
-            if (_client != null)
+            if (_messageStream != null)
             {
-                _client.HandleEvent(e);
+                _messageStream.HandleEvent(e);
             }
         }
 
         private void OnExit(object sender, EventArgs e)
         {
-            _eventQueue.Enqueue(new Event(EventType.Shutdown));
-            _client.ShutDown();
             Close();
+        }
+
+        private void OnFormClosing(object sender, FormClosingEventArgs e)
+        {
+            _eventQueue.Enqueue(new Event(EventType.Shutdown));
+            _messageStream.ShutDown();
         }
 
         private void OnContextOpening(object sender, CancelEventArgs e)
@@ -722,7 +730,16 @@ namespace hasoftware_current_calls.Forms
             }
             // TODO Proper priority codes
             var result = format;
-            result = result.Replace("$P", "" + currentEvent.Point.Priority);
+            if (result.Contains("$P"))
+            {
+                var priorityStr = "?";
+                var priority = _priorities.Find(p => p.Level == currentEvent.Point.Priority);
+                if (priority != null)
+                {
+                    priorityStr = priority.Code;
+                }
+                result = result.Replace("$P", priorityStr);
+            }
             result = result.Replace("$M1", currentEvent.Point.Message1);
             result = result.Replace("$E", elapsedTime);
             return result;

@@ -66,6 +66,7 @@
             this.Name = "CurrentCallsForm";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.Text = "HASoftware - Information Display";
+            this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.OnFormClosing);
             this._contextMenu.ResumeLayout(false);
             this.ResumeLayout(false);
 

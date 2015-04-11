@@ -25,6 +25,22 @@ namespace hasoftware.handlers
             return sw;
         }
 
+        public static StreamWriter OpenCppFilename(string basename, string extension)
+        {
+            // TODO create directories if required
+            var sw = File.CreateText(CppBaseDirectory + Path.DirectorySeparatorChar + basename + extension);
+            Header(sw);
+            return sw;
+        }
+
+        public static StreamWriter OpenCppFilename(string subDirectory, string basename, string extension)
+        {
+            // TODO create directories if required
+            var sw = File.CreateText(CppBaseDirectory + Path.DirectorySeparatorChar + subDirectory + Path.DirectorySeparatorChar + basename + extension);
+            Header(sw);
+            return sw;
+        }
+
         public static StreamWriter OpenJavaFilename(string basename, string extension)
         {
             // TODO create directories if required
@@ -64,6 +80,16 @@ namespace hasoftware.handlers
             get
             {
                 var bd = Specification.JavaBaseDirectory;
+                bd = bd.Replace("${file-location}", FileLocation);
+                return bd;
+            }
+        }
+
+        private static string CppBaseDirectory
+        {
+            get
+            {
+                var bd = Specification.CppBaseDirectory;
                 bd = bd.Replace("${file-location}", FileLocation);
                 return bd;
             }

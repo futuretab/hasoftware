@@ -9,6 +9,7 @@ namespace hasoftware.model
         private const string ACompany = "company";
         private const string AProject = "project";
         private const string AJavaBaseDirectory = "java-base-directory";
+        private const string ACppBaseDirectory = "cpp-base-directory";
         private const string ANetBaseDirectory = "net-base-directory";
         private const string ANamespace = "namespace";
 
@@ -21,6 +22,7 @@ namespace hasoftware.model
             SetValue(ACompany, node.Attributes[ACompany].Value);
             SetValue(AProject, node.Attributes[AProject].Value);
             SetValue(AJavaBaseDirectory, node.Attributes[AJavaBaseDirectory].Value);
+            SetValue(ACppBaseDirectory, node.Attributes[ACppBaseDirectory].Value);
             SetValue(ANetBaseDirectory, node.Attributes[ANetBaseDirectory].Value);
             SetValue(ANamespace, node.Attributes[ANamespace].Value);
             foreach (XmlNode child in node.ChildNodes)
@@ -59,6 +61,12 @@ namespace hasoftware.model
         {
             get { return AttributeValues[AJavaBaseDirectory]; }
             set { AttributeValues[AJavaBaseDirectory] = value; }
+        }
+
+        public string CppBaseDirectory
+        {
+            get { return AttributeValues[ACppBaseDirectory]; }
+            set { AttributeValues[ACppBaseDirectory] = value; }
         }
 
         public string NetBaseDirectory
