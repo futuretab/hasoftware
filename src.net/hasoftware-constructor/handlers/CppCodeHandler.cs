@@ -22,9 +22,9 @@ namespace hasoftware.handlers
         // ****************************************************************
         // MESSAGES
         // ****************************************************************
-        private void HandleMessage(StreamWriter f, string name, List<Parameter> parameters)
+        private void HandleMessage(StreamWriter f, string name, List<Parameter> parameters, string id, string type)
         {
-            f.WriteLine("   class {0} : public HASoftware::MessageBase {{", GetAccessorName(name));
+            f.WriteLine("   class {0} : public HASoftware::CdefMessageBase {{", GetAccessorName(name));
             f.WriteLine("   private:");
 
             // Attributes
@@ -44,12 +44,12 @@ namespace hasoftware.handlers
             f.WriteLine("   public:");
 
             // Default constructor
-            f.WriteLine("      {0}() : HASoftware::MessageBase() {{", GetAccessorName(name));
+            f.WriteLine("      {0}() : HASoftware::CdefMessageBase(FUNCTION_CODE_{1}, 0, CDEF_SYSTEM_FLAGS_{2}) {{", GetAccessorName(name), id, type);
             f.WriteLine("      }");
             f.WriteLine("");
 
             // CdefMessage constructor
-            f.WriteLine("      {0}(HASoftware::CdefMessage &cdefMessage) : HASoftware::MessageBase(cdefMessage) {{", GetAccessorName(name));
+            f.WriteLine("      {0}(HASoftware::CdefMessage &cdefMessage) : HASoftware::CdefMessageBase(cdefMessage) {{", GetAccessorName(name));
             foreach (var p in parameters)
             {
                 if (p.IsList)
@@ -109,7 +109,7 @@ namespace hasoftware.handlers
 
             // Encode
             f.WriteLine("      virtual void Encode(HASoftware::CdefMessage &cdefMessage) {");
-            f.WriteLine("         HASoftware::MessageBase::Encode(cdefMessage);");
+            f.WriteLine("         HASoftware::CdefMessageBase::Encode(cdefMessage);");
             foreach (var p in parameters)
             {
                 if (p.IsList)
@@ -162,15 +162,31 @@ namespace hasoftware.handlers
             f.WriteLine("");
             f.WriteLine("namespace {0} {{", Specification.Namespace);
             f.WriteLine("");
+
+            // ****************************************************************
+            // FUNCTION CODES
+            // ****************************************************************
+            foreach (var m in Specification.Messages.MessageList)
+            {
+                if (!string.IsNullOrEmpty(m.Code))
+                {
+                    f.WriteLine("   #define FUNCTION_CODE_" + m.Name.ToUpper() + " " + m.Code);
+                }
+            }
+            f.WriteLine("");
+
+            // ****************************************************************
+            // MESSAGES
+            // ****************************************************************
             foreach (var m in Specification.Messages.MessageList)
             {
                 if (m.Request != null)
                 {
-                    HandleMessage(f, m.Name + "Request", m.Request.ParameterList);
+                    HandleMessage(f, m.Name + "Request", m.Request.ParameterList, m.Name.ToUpper(), "REQUEST");
                 }
                 if (m.Response != null)
                 {
-                    HandleMessage(f, m.Name + "Response", m.Response.ParameterList);
+                    HandleMessage(f, m.Name + "Response", m.Response.ParameterList, m.Name.ToUpper(), "RESPONSE");
                 }
             }
             f.WriteLine("}");
@@ -246,7 +262,7 @@ namespace hasoftware.handlers
                     {
                         if (Specification.Classes.IsClass(a.Type))
                         {
-                            f.WriteLine("         _{0} = new {1}(cdefMessage);", a.Name, a.Type);
+                            f.WriteLine("         _{0} = {1}(cdefMessage);", a.Name, a.Type);
                         }
                         else
                         {
@@ -322,31 +338,9 @@ namespace hasoftware.handlers
         private void HandleConstants()
         {
             // ****************************************************************
-            // FUNCTION CODES
-            // ****************************************************************
-            var f = HandlerSupport.OpenCppFilename("FunctionCodes", ".h");
-            f.WriteLine("#ifndef FUNCTIONCODES_H");
-            f.WriteLine("#define FUNCTIONCODES_H");
-            f.WriteLine("");
-            f.WriteLine("namespace {0} {{", Specification.Namespace);
-            f.WriteLine("   enum FunctionCode {");
-            foreach (var m in Specification.Messages.MessageList)
-            {
-                if (!string.IsNullOrEmpty(m.Code))
-                {
-                    f.WriteLine("      " + m.Name + " = " + m.Code + ",");
-                }
-            }
-            f.WriteLine("   };");
-            f.WriteLine("}");
-            f.WriteLine("");
-            f.WriteLine("#endif");
-            f.Close();
-
-            // ****************************************************************
             // MESSAGE FACTORY
             // ****************************************************************
-            f = HandlerSupport.OpenCppFilename("MessageFactory", ".h");
+            var f = HandlerSupport.OpenCppFilename("MessageFactory", ".h");
             f.WriteLine("#ifndef MESSAGE_FACTORY_H");
             f.WriteLine("#define MESSAGE_FACTORY_H");
             f.WriteLine("");
@@ -446,6 +440,12 @@ namespace hasoftware.handlers
             var test1 = data.ToLower();
             switch (test1)
             {
+                case "float":
+                    return cdef ? "Float" : "float";
+
+                case "double":
+                    return cdef ? "Double" : "double";
+
                 case "int":
                     return cdef ? "Int" : "int";
 

@@ -72,6 +72,12 @@ namespace hasoftware.forms
                 var handler = new JavaCodeHandler();
                 handler.Handle(Specification);
             }
+
+            if (!string.IsNullOrEmpty(Specification.CppBaseDirectory))
+            {
+                var handler = new CppCodeHandler();
+                handler.Handle(Specification);
+            }
         }
     }
 }

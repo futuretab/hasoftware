@@ -42,7 +42,9 @@
 	<!ATTLIST specification
 		company CDATA #REQUIRED	
 		project CDATA #REQUIRED	
-		base-directory CDATA #REQUIRED	
+		java-base-directory CDATA ""
+		net-base-directory CDATA ""
+		cpp-base-directory CDATA ""
 		namespace CDATA #REQUIRED
 	>
 	<!ATTLIST database
@@ -90,6 +92,7 @@
 	project="hasoftware"
 	java-base-directory="${file-location}\\..\\src\\hasoftware-library\\src\\hasoftware\\api\\"
 	net-base-directory="${file-location}\\..\\src.net\\hasoftware-library\\"
+	cpp-base-directory="${file-location}\\..\\src.cpp\\common\\Cdef\\"
 	namespace="hasoftware">
 	
 	<!-- ********************************************************************** -->
