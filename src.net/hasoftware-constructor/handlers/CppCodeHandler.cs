@@ -93,6 +93,13 @@ namespace hasoftware.handlers
 
             // Destructor
             f.WriteLine("      virtual ~{0}() {{", GetAccessorName(name));
+            foreach (var p in parameters)
+            {
+                if (p.IsList && Specification.Classes.IsClass(p.Type))
+                {
+                    f.WriteLine("         while (_{0}.size() != 0) {{ delete _{0}.front(); _{0}.pop_front(); }}", p.Name);
+                }
+            }
             f.WriteLine("      }");
             f.WriteLine("");
 
@@ -282,6 +289,18 @@ namespace hasoftware.handlers
                         {
                             f.WriteLine("         _{0} = {1};", a.Name, GetCdefGet(GetType(a.Type)));
                         }
+                    }
+                }
+                f.WriteLine("      }");
+                f.WriteLine("");
+
+                // Destructor
+                f.WriteLine("      virtual ~{0}() {{", GetAccessorName(c.Name));
+                foreach (var a in c.Attributes.AttributeList)
+                {
+                    if (a.IsList && Specification.Classes.IsClass(a.Type))
+                    {
+                        f.WriteLine("         while (_{0}.size() != 0) {{ delete _{0}.front(); _{0}.pop_front(); }}", a.Name);
                     }
                 }
                 f.WriteLine("      }");
