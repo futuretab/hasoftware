@@ -11,6 +11,7 @@ namespace hasoftware.model
         private const string ALength = "length";
         private const string ANullable = "nullable";
         private const string AList = "list";
+        private const string ADefault = "default";
 
         public Attribute(XmlNode node)
         {
@@ -19,6 +20,7 @@ namespace hasoftware.model
             SetValue(ALength, node.Attributes[ALength].Value);
             SetValue(ANullable, node.Attributes[ANullable].Value);
             SetValue(AList, node.Attributes[AList].Value);
+            SetValue(ADefault, node.Attributes[ADefault].Value);
         }
 
         public string Name
@@ -48,6 +50,12 @@ namespace hasoftware.model
         public bool IsList
         {
             get { return bool.Parse(GetValue(AList)); }
+        }
+
+        public string Default
+        {
+            get { return GetValue(ADefault); }
+            set { SetValue(ADefault, value); }
         }
     }
 }

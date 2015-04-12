@@ -45,6 +45,13 @@ namespace hasoftware.handlers
 
             // Default constructor
             f.WriteLine("      {0}() : HASoftware::CdefMessageBase(FUNCTION_CODE_{1}, 0, CDEF_SYSTEM_FLAGS_{2}) {{", GetAccessorName(name), id, type);
+            foreach (var p in parameters)
+            {
+                if (p.Default.Length != 0)
+                {
+                    f.WriteLine("         _{0} = {1};", p.Name, p.Default);
+                }
+            }
             f.WriteLine("      }");
             f.WriteLine("");
 
@@ -157,7 +164,7 @@ namespace hasoftware.handlers
             f.WriteLine("#include <string>");
             f.WriteLine("#include <vector>");
             f.WriteLine("");
-            f.WriteLine("#include \"CdefMessage.h\"");
+            f.WriteLine("#include \"CdefMessages.h\"");
             f.WriteLine("#include \"Classes.h\"");
             f.WriteLine("");
             f.WriteLine("namespace {0} {{", Specification.Namespace);
@@ -234,6 +241,13 @@ namespace hasoftware.handlers
 
                 // Default constructor
                 f.WriteLine("      {0}() {{", GetAccessorName(c.Name));
+                foreach (var a in c.Attributes.AttributeList)
+                {
+                    if (a.Default.Length != 0)
+                    {
+                        f.WriteLine("         _{0} = {1};", a.Name, a.Default);
+                    }
+                }
                 f.WriteLine("      }");
                 f.WriteLine("");
 
