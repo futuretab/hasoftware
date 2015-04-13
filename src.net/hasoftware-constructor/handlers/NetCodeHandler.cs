@@ -314,7 +314,7 @@ namespace hasoftware.handlers
                     }
                     else
                     {
-                        throw new ApplicationException("TODO List attribute of non class type");
+                        f.WriteLine("         {0} = new List<{1}>();", GetAccessorName(a.Name), GetType(a.Type));
                     }
                 }
             }
@@ -337,7 +337,7 @@ namespace hasoftware.handlers
                     }
                     else
                     {
-                        throw new ApplicationException("TODO List attribute of non class type");
+                        f.WriteLine("               {0}.Add({1});", GetAccessorName(a.Name), GetCdefGet(GetType(a.Type)));
                     }
                     f.WriteLine("            }");
                     f.WriteLine("         }");
@@ -366,12 +366,11 @@ namespace hasoftware.handlers
                     f.WriteLine("         cdefMessage.PutInt({0}.Count);", GetAccessorName(a.Name));
                     if (Specification.Classes.IsClass(a.Type))
                     {
-                        f.WriteLine("         foreach (var obj in {0}) {{ obj.Encode(cdefMessage); }}",
-                                    GetAccessorName(a.Name));
+                        f.WriteLine("         foreach (var obj in {0}) {{ obj.Encode(cdefMessage); }}", GetAccessorName(a.Name));
                     }
                     else
                     {
-                        throw new ApplicationException("TODO List attribute of non class type");
+                        f.WriteLine("         foreach (var obj in {0}) {{ {1} }}", GetAccessorName(a.Name), GetCdefPut(GetType(a.Type), GetAccessorName(a.Name)));
                     }
                 }
                 else
@@ -484,6 +483,12 @@ namespace hasoftware.handlers
             var test1 = data.ToLower();
             switch (test1)
             {
+                case "double":
+                    return cdef ? "Double" : "double";
+
+                case "float":
+                    return cdef ? "Float" : "float";
+
                 case "int":
                     return cdef ? "Int" : "int";
 
@@ -505,6 +510,12 @@ namespace hasoftware.handlers
                 case "uuid":
                 case "oid":
                     return "Guid";
+
+                case "bytes":
+                    return "byte[]";
+
+                case "byte[]":
+                    return "Bytes";
             }
 
             var cl = Specification.Classes.GetClass(GetAccessorName(data));

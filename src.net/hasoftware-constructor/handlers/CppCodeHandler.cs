@@ -16,7 +16,6 @@ namespace hasoftware.handlers
             Specification = specification;
             HandleClasses();
             HandleMessages();
-            HandleConstants();
         }
 
         // ****************************************************************
@@ -171,7 +170,7 @@ namespace hasoftware.handlers
             f.WriteLine("#include <string>");
             f.WriteLine("#include <vector>");
             f.WriteLine("");
-            f.WriteLine("#include \"CdefMessages.h\"");
+            f.WriteLine("#include \"Cdef/CdefMessages.h\"");
             f.WriteLine("#include \"Classes.h\"");
             f.WriteLine("");
             f.WriteLine("namespace {0} {{", Specification.Namespace);
@@ -203,6 +202,47 @@ namespace hasoftware.handlers
                     HandleMessage(f, m.Name + "Response", m.Response.ParameterList, m.Name.ToUpper(), "RESPONSE");
                 }
             }
+
+            f.WriteLine("   class MessageFactory {");
+            f.WriteLine("   public:");
+            f.WriteLine("      static HASoftware::CdefMessageBase* Decode(HASoftware::CdefMessage &cdefMessage) {");
+            f.WriteLine("         HASoftware::CdefMessageBase* message = NULL;");
+            f.WriteLine("         int functionCode = cdefMessage.GetInt(0);");
+            f.WriteLine("         int transactionNumber = cdefMessage.GetInt();");
+            f.WriteLine("         int systemFlags = cdefMessage.GetInt();");
+            f.WriteLine("         if (systemFlags == (CDEF_SYSTEM_FLAGS_ERROR | CDEF_SYSTEM_FLAGS_RESPONSE)) {");
+            f.WriteLine("            message = new HASoftware::ErrorResponse(cdefMessage);");
+            f.WriteLine("         } else if (functionCode == FUNCTION_CODE_HEARTBEAT && systemFlags == CDEF_SYSTEM_FLAGS_REQUEST) {");
+            f.WriteLine("            message = new HASoftware::HeartbeatRequest(cdefMessage);");
+            f.WriteLine("         } else if (functionCode == FUNCTION_CODE_NOTIFY && systemFlags == CDEF_SYSTEM_FLAGS_REQUEST) {");
+            f.WriteLine("            message = new HASoftware::NotifyRequest(cdefMessage);");
+            f.WriteLine("         } else if (functionCode == FUNCTION_CODE_NOTIFY && systemFlags == CDEF_SYSTEM_FLAGS_RESPONSE) {");
+            f.WriteLine("            message = new HASoftware::NotifyResponse(cdefMessage);");
+            f.WriteLine("         } else {");
+            f.WriteLine("            bool isRequest = ((systemFlags & CDEF_SYSTEM_FLAGS_RESPONSE) == 0);");
+            f.WriteLine("            switch (functionCode) {");
+            foreach (var m in Specification.Messages.MessageList)
+            {
+                if (!string.IsNullOrEmpty(m.Code))
+                {
+                    f.WriteLine("            case FUNCTION_CODE_{0}:", m.Name.ToUpper());
+                    if (m.Request != null)
+                    {
+                        f.WriteLine("               if (isRequest) message = new {0}Request(cdefMessage);", m.Name);
+                    }
+                    if (m.Response != null)
+                    {
+                        f.WriteLine("               if (!isRequest) message = new {0}Response(cdefMessage);", m.Name);
+                    }
+                    f.WriteLine("                   break;");
+                }
+            }
+            f.WriteLine("            }");
+            f.WriteLine("         }");
+            f.WriteLine("         return message;");
+            f.WriteLine("       }");
+            f.WriteLine("    };");
+            f.WriteLine("");
             f.WriteLine("}");
             f.WriteLine("");
             f.WriteLine("#endif");
@@ -221,7 +261,7 @@ namespace hasoftware.handlers
             f.WriteLine("#include <list>");
             f.WriteLine("#include <string>");
             f.WriteLine("");
-            f.WriteLine("#include \"CdefMessage.h\"");
+            f.WriteLine("#include \"Cdef/CdefMessage.h\"");
             f.WriteLine("");
             f.WriteLine("namespace {0} {{", Specification.Namespace);
             f.WriteLine("");
@@ -365,79 +405,6 @@ namespace hasoftware.handlers
             f.WriteLine("}");
             f.WriteLine("");
             f.WriteLine("#endif");
-            f.Close();
-        }
-
-        private void HandleConstants()
-        {
-            // ****************************************************************
-            // MESSAGE FACTORY
-            // ****************************************************************
-            var f = HandlerSupport.OpenCppFilename("MessageFactory", ".h");
-            f.WriteLine("#ifndef MESSAGE_FACTORY_H");
-            f.WriteLine("#define MESSAGE_FACTORY_H");
-            f.WriteLine("");
-            f.WriteLine("#include \"MessageBase.h\"");
-            f.WriteLine("#include \"CdefMessage.h\"");
-            f.WriteLine("");
-            f.WriteLine("namespace {0} {{", Specification.Namespace);
-            f.WriteLine("   class MessageFactory {");
-            f.WriteLine("   public:");
-            f.WriteLine("      static HASoftware::MessageBase* Decode(HASoftware::CdefMessage &cdefMessage);");
-            f.WriteLine("    };");
-            f.WriteLine("}");
-            f.WriteLine("");
-            f.WriteLine("#endif");
-            f.Close();
-
-            f = HandlerSupport.OpenCppFilename("MessageFactory", ".cpp");
-            f.WriteLine("#include <stdlib.h>");
-            f.WriteLine("");
-            f.WriteLine("#include \"CdefMessages.h\"");
-            f.WriteLine("#include \"FunctionCodes.h\"");
-            f.WriteLine("#include \"MessageFactory.h\"");
-            f.WriteLine("#include \"Messages.h\"");
-            f.WriteLine("");
-            f.WriteLine("using namespace HASoftware;");
-            f.WriteLine("");
-            f.WriteLine("namespace Lockheed {");
-            f.WriteLine("   MessageBase* MessageFactory::Decode(CdefMessage &cdefMessage) {");
-            f.WriteLine("      MessageBase* message = NULL;");
-            f.WriteLine("      int functionCode = cdefMessage.GetInt(0);");
-            f.WriteLine("      int transactionNumber = cdefMessage.GetInt();");
-            f.WriteLine("      int systemFlags = cdefMessage.GetInt();");
-            f.WriteLine("      if (systemFlags == (CdefSystemFlags::Error | CdefSystemFlags::Response)) {");
-            f.WriteLine("         message = new ErrorResponse(cdefMessage);");
-            f.WriteLine("      } else if (functionCode == CdefFunctionCode::Heartbeat && systemFlags == CdefSystemFlags::Request) {");
-            f.WriteLine("         message = new HeartbeatRequest(cdefMessage);");
-            f.WriteLine("      } else if (functionCode == CdefFunctionCode::Notify && systemFlags == CdefSystemFlags::Request) {");
-            f.WriteLine("         message = new NotifyRequest(cdefMessage);");
-            f.WriteLine("      } else if (functionCode == CdefFunctionCode::Notify && systemFlags == CdefSystemFlags::Response) {");
-            f.WriteLine("         message = new NotifyResponse(cdefMessage);");
-            f.WriteLine("      } else {");
-            f.WriteLine("         bool isRequest = ((systemFlags & CdefSystemFlags::Response) == 0);");
-            f.WriteLine("         switch (functionCode) {");
-            foreach (var m in Specification.Messages.MessageList)
-            {
-                if (!string.IsNullOrEmpty(m.Code))
-                {
-                    f.WriteLine("         case FunctionCode::{0}:", m.Name);
-                    if (m.Request != null)
-                    {
-                        f.WriteLine("            if (isRequest) message = new {0}Request(cdefMessage);", m.Name);
-                    }
-                    if (m.Response != null)
-                    {
-                        f.WriteLine("            if (!isRequest) message = new {0}Response(cdefMessage);", m.Name);
-                    }
-                    f.WriteLine("                break;");
-                }
-            }
-            f.WriteLine("         }");
-            f.WriteLine("      }");
-            f.WriteLine("      return message;");
-            f.WriteLine("    }");
-            f.WriteLine("}");
             f.Close();
         }
 

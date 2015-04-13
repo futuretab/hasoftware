@@ -12,6 +12,7 @@ namespace hasoftware.model
         private const string ACppBaseDirectory = "cpp-base-directory";
         private const string ANetBaseDirectory = "net-base-directory";
         private const string ANamespace = "namespace";
+        private const string AJavaNamespace = "java-namespace";
 
         public Classes Classes { get; private set; }
         public Messages Messages { get; private set; }
@@ -25,6 +26,7 @@ namespace hasoftware.model
             SetValue(ACppBaseDirectory, node.Attributes[ACppBaseDirectory].Value);
             SetValue(ANetBaseDirectory, node.Attributes[ANetBaseDirectory].Value);
             SetValue(ANamespace, node.Attributes[ANamespace].Value);
+            SetValue(AJavaNamespace, node.Attributes[AJavaNamespace].Value);
             foreach (XmlNode child in node.ChildNodes)
             {
                 if (child.NodeType != XmlNodeType.Element) continue;
@@ -79,6 +81,12 @@ namespace hasoftware.model
         {
             get { return AttributeValues[ANamespace]; }
             set { AttributeValues[ANamespace] = value; }
+        }
+
+        public string JavaNamespace
+        {
+            get { return AttributeValues[AJavaNamespace]; }
+            set { AttributeValues[AJavaNamespace] = value; }
         }
     }
 }

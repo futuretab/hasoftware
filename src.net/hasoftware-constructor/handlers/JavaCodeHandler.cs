@@ -28,10 +28,10 @@ namespace hasoftware.handlers
             if (data.Request != null)
             {
                 var f = HandlerSupport.OpenJavaFilename("messages", data.Name + "Request", ".java");
-                f.WriteLine("package {0}.api.messages;", Specification.Namespace);
+                f.WriteLine("package {0}.messages;", Specification.JavaNamespace);
                 f.WriteLine("");
-                f.WriteLine("import {0}.api.FunctionCode;", Specification.Namespace);
-                f.WriteLine("import {0}.api.classes.*;", Specification.Namespace);
+                f.WriteLine("import {0}.api.FunctionCode;", Specification.JavaNamespace);
+                f.WriteLine("import {0}.classes.*;", Specification.JavaNamespace);
                 f.WriteLine("import hasoftware.api.Message;");
                 f.WriteLine("import hasoftware.cdef.*;");
                 f.WriteLine("import java.util.LinkedList;");
@@ -161,10 +161,10 @@ namespace hasoftware.handlers
             if (data.Response != null)
             {
                 var f = HandlerSupport.OpenJavaFilename("messages", data.Name + "Response", ".java");
-                f.WriteLine("package {0}.api.messages;", Specification.Namespace);
+                f.WriteLine("package {0}.messages;", Specification.JavaNamespace);
                 f.WriteLine("");
-                f.WriteLine("import {0}.api.FunctionCode;", Specification.Namespace);
-                f.WriteLine("import {0}.api.classes.*;", Specification.Namespace);
+                f.WriteLine("import {0}.api.FunctionCode;", Specification.JavaNamespace);
+                f.WriteLine("import {0}.classes.*;", Specification.JavaNamespace);
                 f.WriteLine("import hasoftware.api.Message;");
                 f.WriteLine("import hasoftware.cdef.*;");
                 f.WriteLine("import java.util.LinkedList;");
@@ -285,8 +285,8 @@ namespace hasoftware.handlers
 
         private void HandleConstants()
         {
-            var f = HandlerSupport.OpenJavaFilename("FunctionCode", ".java");
-            f.WriteLine("package {0}.api;", Specification.Namespace);
+            var f = HandlerSupport.OpenJavaFilename("api", "FunctionCode", ".java");
+            f.WriteLine("package {0}.api;", Specification.JavaNamespace);
             f.WriteLine("");
             f.WriteLine("import hasoftware.cdef.CDEFFunctionCode;");
             f.WriteLine("");
@@ -301,8 +301,8 @@ namespace hasoftware.handlers
             f.WriteLine("}");
             f.Close();
 
-            f = HandlerSupport.OpenJavaFilename("CDEFMessageFactory", ".java");
-            f.WriteLine("package {0}.api;", Specification.Namespace);
+            f = HandlerSupport.OpenJavaFilename("api", "CDEFMessageFactory", ".java");
+            f.WriteLine("package {0}.api;", Specification.JavaNamespace);
             f.WriteLine("");
             foreach (var m in Specification.Messages.MessageList)
             {
@@ -310,16 +310,18 @@ namespace hasoftware.handlers
                 {
                     if (m.Request != null)
                     {
-                        f.WriteLine("import {0}.api.messages.{1}Request;", Specification.Namespace, m.Name);
+                        f.WriteLine("import {0}.messages.{1}Request;", Specification.JavaNamespace, m.Name);
                     }
                     if (m.Response != null)
                     {
-                        f.WriteLine("import {0}.api.messages.{1}Response;", Specification.Namespace, m.Name);
+                        f.WriteLine("import {0}.messages.{1}Response;", Specification.JavaNamespace, m.Name);
                     }
                 }
             }
             f.WriteLine("import hasoftware.cdef.CDEFMessage;");
             f.WriteLine("import hasoftware.cdef.CDEFSystemFlags;");
+            f.WriteLine("import hasoftware.api.messages.*;");
+            f.WriteLine("import hasoftware.api.*;");
             f.WriteLine("");
             f.WriteLine("public class CDEFMessageFactory {");
             f.WriteLine("   public static Message decode(CDEFMessage cdefMessage) {");
@@ -367,7 +369,7 @@ namespace hasoftware.handlers
         private void HandleClass(Class data)
         {
             var f = HandlerSupport.OpenJavaFilename("classes", data.Name, ".java");
-            f.WriteLine("package {0}.api.classes;", Specification.Namespace);
+            f.WriteLine("package {0}.classes;", Specification.JavaNamespace);
             f.WriteLine("");
             f.WriteLine("import hasoftware.cdef.CDEFMessage;");
             f.WriteLine("import java.util.List;");
@@ -409,7 +411,7 @@ namespace hasoftware.handlers
                     }
                     else
                     {
-                        throw new ApplicationException("TODO List attribute of non class type");
+                        f.WriteLine("            _{0}.add({1});", a.Name, GetCdefGet(GetType(a.Type)));
                     }
                     f.WriteLine("         }");
                     f.WriteLine("      }");
@@ -442,7 +444,8 @@ namespace hasoftware.handlers
                     }
                     else
                     {
-                        throw new ApplicationException("TODO List attribute of non class type");
+                        // f.WriteLine("         foreach (var obj in {0}) {{ {1} }}", GetAccessorName(a.Name), GetCdefPut(GetType(a.Type), GetAccessorName(a.Name)));
+                        f.WriteLine("      for ({0} obj : _{1}) {{ {2}; }}", GetType(a.Type), a.Name, GetCdefPut(GetType(a.Type), "obj"));
                     }
                 }
                 else
@@ -540,6 +543,12 @@ namespace hasoftware.handlers
             var test1 = data.ToLower();
             switch (test1)
             {
+                case "double":
+                    return cdef ? "Double" : "double";
+
+                case "float":
+                    return cdef ? "Float" : "float";
+
                 case "int":
                     return cdef ? "Int" : "int";
 
@@ -561,6 +570,12 @@ namespace hasoftware.handlers
                 case "uuid":
                 case "oid":
                     return "Guid";
+
+                case "bytes":
+                    return "byte[]";
+
+                case "byte[]":
+                    return "Bytes";
             }
 
             var cl = Specification.Classes.GetClass(GetAccessorName(data));
