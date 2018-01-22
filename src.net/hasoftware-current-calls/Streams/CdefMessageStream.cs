@@ -2,52 +2,54 @@
 using hasoftware.Configuration;
 using hasoftware.Util;
 using NLog;
-using System;
 using System.Collections.Concurrent;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace hasoftware_current_calls.Streams
 {
-    public class CdefMessageStream : IMessageStream
-    {
-        private static Logger logger = LogManager.GetCurrentClassLogger();
+   public class CdefMessageStream : IMessageStream
+   {
+      private static Logger logger = LogManager.GetCurrentClassLogger();
 
-        private CdefClient _client;
+      private string _name;
+      private CdefClient _client;
 
-        public CdefMessageStream(XmlSettings settings)
-        {
-            var host = settings.GetString("host", "localhost");
-            var port = settings.GetInt("port", 6969);
-            _client = new CdefClient(host, port);
-            logger.Debug("CDEF server address [{0}:{1}]", host, port);
-        }
+      public CdefMessageStream(XmlSettings settings)
+      {
+         _name = settings.GetString("name", "CDEF");
+         var host = settings.GetString("host", "localhost");
+         var port = settings.GetInt("port", 6969);
+         _client = new CdefClient(host, port);
+         logger.Debug("CDEF server address [{0}:{1}]", host, port);
+      }
 
-        public bool SetEventQueue(ConcurrentQueue<Event> eventQueue)
-        {
-            return _client.SetEventQueue(eventQueue);
-        }
+      public string Name()
+      {
+         return _name;
+      }
 
-        public bool StartUp()
-        {
-            return _client.StartUp();
-        }
+      public bool SetEventQueue(ConcurrentQueue<Event> eventQueue)
+      {
+         return _client.SetEventQueue(eventQueue);
+      }
 
-        public bool ReadyToShutDown()
-        {
-            return _client.ReadyToShutDown();
-        }
+      public bool StartUp()
+      {
+         return _client.StartUp();
+      }
 
-        public bool ShutDown()
-        {
-            return _client.ShutDown();
-        }
+      public bool ReadyToShutDown()
+      {
+         return _client.ReadyToShutDown();
+      }
 
-        public bool HandleEvent(Event e)
-        {
-            return _client.HandleEvent(e);
-        }
-    }
+      public bool ShutDown()
+      {
+         return _client.ShutDown();
+      }
+
+      public bool HandleEvent(Event e)
+      {
+         return _client.HandleEvent(e);
+      }
+   }
 }

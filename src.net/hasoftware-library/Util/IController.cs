@@ -1,16 +1,13 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-
-namespace hasoftware.Util
+﻿namespace hasoftware.Util
 {
-    public interface IController
-    {
-        bool StartUp();
+   public interface IController
+   {
+      string Name();
 
-        bool ReadyToShutDown();
+      bool StartUp();
 
-        bool ShutDown();
-    }
+      bool ReadyToShutDown();
+
+      bool ShutDown();
+   }
 }
